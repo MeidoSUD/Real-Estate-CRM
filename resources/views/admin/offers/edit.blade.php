@@ -406,27 +406,72 @@
                 </div>
             </div>
 
-            <!-- Deed File Upload Attachment -->
-            <div style="margin-top: 1.5rem; padding: 1.25rem; background: var(--bg-cream); border-radius: 12px; border: 1px dashed var(--accent-bronze);">
-                <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="fa-solid fa-paperclip" style="color: var(--accent-bronze);"></i>
-                    <span>{{ app()->getLocale() === 'ar' ? 'مرفق صورة الصك أو العقد (PDF أو صورة)' : 'Deed or Contract Attachment (PDF / Image)' }}</span>
-                </label>
-                @if($offer->deed_image)
-                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem; background: #ffffff; padding: 0.6rem 1rem; border-radius: 8px; border: 1px solid var(--border-light); flex-wrap: wrap;">
-                        <i class="fa-solid fa-file-check" style="color: #15803d; font-size: 1.2rem;"></i>
-                        <span style="font-size: 0.85rem; font-weight: 700; color: var(--primary-900);">{{ app()->getLocale() === 'ar' ? 'يوجد صك مرفق حالياً:' : 'Current Deed Attached:' }}</span>
-                        <a href="{{ asset('storage/' . $offer->deed_image) }}" target="_blank" class="btn-outline-luxury" style="padding: 0.3rem 0.8rem; font-size: 0.75rem;">
-                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'معاينة الصك المرفق' : 'Preview Current Deed' }}</span>
-                        </a>
+            <!-- OWNER INFORMATION SECTION (GATED BY PERMISSION) -->
+            @if(auth()->user()->canViewOwnerContact())
+                <div style="background: var(--primary-50); border: 1.5px solid rgba(200, 155, 83, 0.4); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                        <h5 style="font-size: 1rem; color: var(--primary-900); font-weight: 800; display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+                            <i class="fa-solid fa-user-lock text-gold"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'بيانات مالك العقار (سرية ومتاحة لخدمة العملاء والإدارة)' : 'Property Owner Contact (Authorized Access)' }}</span>
+                        </h5>
+                        <span class="badge-success" style="font-size: 0.72rem;">
+                            <i class="fa-solid fa-circle-check"></i> {{ app()->getLocale() === 'ar' ? 'صلاحية خدمة العملاء / الإدارة' : 'Authorized' }}
+                        </span>
                     </div>
-                @endif
-                <input type="file" name="deed_image" class="form-input" accept="image/*,.pdf" style="background: #ffffff;">
-                <small style="color: var(--text-muted); display: block; margin-top: 0.4rem;">
-                    {{ app()->getLocale() === 'ar' ? 'الحجم الأقصى 5 ميجابايت. اترك الحقل فارغاً للإبقاء على الملف الحالي.' : 'Max file size 5MB. Leave empty to keep existing file.' }}
-                </small>
-            </div>
+
+                    <div class="form-grid-3" style="margin-bottom: 0.75rem;">
+                        <div>
+                            <label class="form-label">{{ app()->getLocale() === 'ar' ? 'اسم مالك العقار' : 'Owner Full Name' }}</label>
+                            <input type="text" name="owner_name" value="{{ old('owner_name', $offer->owner_name) }}" class="form-input" placeholder="{{ app()->getLocale() === 'ar' ? 'مثال: الشيخ عبد الله آل سيف' : 'e.g. Abdullah Al-Saif' }}">
+                        </div>
+
+                        <div>
+                            <label class="form-label">{{ app()->getLocale() === 'ar' ? 'رقم جوال المالك للتواصل المباشر' : 'Owner Phone Number' }}</label>
+                            <input type="text" name="owner_phone" value="{{ old('owner_phone', $offer->owner_phone) }}" class="form-input" placeholder="+966 5X XXX XXXX" style="direction: ltr;">
+                        </div>
+
+                        <div>
+                            <label class="form-label">{{ app()->getLocale() === 'ar' ? 'رقم الهوية الوطنية / السجل التجاري' : 'Owner National ID / CR' }}</label>
+                            <input type="text" name="owner_national_id" value="{{ old('owner_national_id', $offer->owner_national_id) }}" class="form-input" placeholder="10XXXXXXXX">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deed File Upload Attachment (Authorized) -->
+                <div style="margin-top: 1.5rem; padding: 1.25rem; background: var(--bg-cream); border-radius: 12px; border: 1px dashed var(--accent-bronze);">
+                    <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fa-solid fa-paperclip" style="color: var(--accent-bronze);"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'مرفق صورة الصك أو العقد (PDF أو صورة)' : 'Deed or Contract Attachment (PDF / Image)' }}</span>
+                    </label>
+                    @if($offer->deed_image)
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem; background: #ffffff; padding: 0.6rem 1rem; border-radius: 8px; border: 1px solid var(--border-light); flex-wrap: wrap;">
+                            <i class="fa-solid fa-file-check" style="color: #15803d; font-size: 1.2rem;"></i>
+                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--primary-900);">{{ app()->getLocale() === 'ar' ? 'يوجد صك مرفق حالياً:' : 'Current Deed Attached:' }}</span>
+                            <a href="{{ asset('storage/' . $offer->deed_image) }}" target="_blank" class="btn-outline-luxury" style="padding: 0.3rem 0.8rem; font-size: 0.75rem;">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'معاينة الصك المرفق' : 'Preview Current Deed' }}</span>
+                            </a>
+                        </div>
+                    @endif
+                    <input type="file" name="deed_image" class="form-input" accept="image/*,.pdf" style="background: #ffffff;">
+                    <small style="color: var(--text-muted); display: block; margin-top: 0.4rem;">
+                        {{ app()->getLocale() === 'ar' ? 'الحجم الأقصى 5 ميجابايت. اترك الحقل فارغاً للإبقاء على الملف الحالي.' : 'Max file size 5MB. Leave empty to keep existing file.' }}
+                    </small>
+                </div>
+            @else
+                <!-- RESTRICTED VIEW FOR MARKETING TEAM -->
+                <div style="background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; text-align: center;">
+                    <div style="display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; background: #fee2e2; color: #dc2626; margin-bottom: 0.75rem; font-size: 1.2rem;">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <h5 style="font-size: 0.95rem; font-weight: 800; color: var(--primary-900); margin-bottom: 0.25rem;">
+                        {{ app()->getLocale() === 'ar' ? 'بيانات مالك العقار ووثيقة الصك محمية' : 'Owner Contact & Deed Protected' }}
+                    </h5>
+                    <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+                        {{ app()->getLocale() === 'ar' ? 'هذه البيانات مخصصة حصرياً لفريق خدمة العملاء والإدارة العامة لإتمام المعاينات الرسمية والتعاقد، ولن تتأثر أو تُحذف عند حفظ تعديلاتك التسويقية.' : 'Owner contact is restricted to Customer Service & Admin and will remain intact upon saving.' }}
+                    </p>
+                </div>
+            @endif
         </div>
     </div>
 
@@ -1063,11 +1108,23 @@
                 </div>
 
                 <div>
-                    <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem;">
-                        <i class="fa-solid fa-lock" style="color: #ef4444;"></i>
-                        <span>{{ app()->getLocale() === 'ar' ? 'ملاحظات داخلية سرية (لفريق الوساطة فقط)' : 'Internal Private Notes (Team only)' }}</span>
-                    </label>
-                    <textarea name="internal_notes" rows="8" class="form-input" style="background: #fdfaf6;" placeholder="{{ app()->getLocale() === 'ar' ? 'بيانات المالك السرية، عمولة السعي الإضافية، أو توجيهات خاصة بالمعاينة...' : 'Confidential seller notes, broker commission split, inspection codes...' }}">{{ old('internal_notes', $offer->internal_notes) }}</textarea>
+                    @if(auth()->user()->canViewOwnerContact())
+                        <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fa-solid fa-lock text-gold"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'ملاحظات داخلية وسجل المالك السري (خدمة العملاء والإدارة)' : 'Internal Private Notes (CS & Admin Only)' }}</span>
+                        </label>
+                        <textarea name="internal_notes" rows="8" class="form-input" style="background: #fdfaf6;" placeholder="{{ app()->getLocale() === 'ar' ? 'بيانات المالك السرية، عمولة السعي الإضافية، أو توجيهات خاصة بالمعاينة...' : 'Confidential seller notes, broker commission split, inspection codes...' }}">{{ old('internal_notes', $offer->internal_notes) }}</textarea>
+                    @else
+                        <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fa-solid fa-lock" style="color: #ef4444;"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'ملاحظات داخلية سرية' : 'Internal Private Notes' }}</span>
+                        </label>
+                        <div style="background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 8px; padding: 1.5rem; text-align: center; height: calc(100% - 32px); display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <i class="fa-solid fa-shield-halved" style="color: #94a3b8; font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+                            <div style="font-weight: 700; color: #475569; font-size: 0.9rem;">{{ app()->getLocale() === 'ar' ? 'ملاحظات سرية محمية' : 'Confidential Notes Protected' }}</div>
+                            <span style="font-size: 0.78rem; color: #94a3b8; margin-top: 0.25rem;">{{ app()->getLocale() === 'ar' ? 'هذه الملاحظات مخصصة لفريق خدمة العملاء والإدارة ولا تظهر للمسوقين.' : 'These notes are restricted to Customer Service & Admin.' }}</span>
+                        </div>
+                    @endif
                 </div>
             </div>
 

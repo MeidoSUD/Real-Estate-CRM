@@ -110,7 +110,8 @@
                 <th>{{ app()->getLocale() === 'ar' ? 'الحي (جدة)' : 'District' }}</th>
                 <th>{{ app()->getLocale() === 'ar' ? 'السعر المطلوب' : 'Price (SAR)' }}</th>
                 <th>{{ app()->getLocale() === 'ar' ? 'الحالة' : 'Status' }}</th>
-                <th>{{ app()->getLocale() === 'ar' ? 'الوسيط / المسوق' : 'Agent' }}</th>
+                <th>{{ app()->getLocale() === 'ar' ? 'المسوق المسؤول' : 'Listing Agent' }}</th>
+                <th>{{ app()->getLocale() === 'ar' ? 'مالك العقار' : 'Property Owner' }}</th>
                 <th>{{ app()->getLocale() === 'ar' ? 'الإجراءات' : 'Actions' }}</th>
             </tr>
         </thead>
@@ -119,6 +120,7 @@
                 @php
                     $displayTitle = (app()->getLocale() === 'ar' && !empty($offer->title_ar)) ? $offer->title_ar : $offer->title;
                     $photoCount = is_array($offer->categorized_images) ? count($offer->categorized_images) : 0;
+                    $canViewOwner = auth()->user()->canViewOwnerContact();
                 @endphp
                 <tr>
                     <td>
@@ -132,7 +134,9 @@
                                 @endif
                             </div>
                             <div>
-                                <strong style="color: var(--primary-900); font-size: 0.95rem; display: block;">{{ $displayTitle }}</strong>
+                                <a href="{{ route('admin.offers.show', $offer->id) }}" style="text-decoration: none; color: inherit;">
+                                    <strong style="color: var(--primary-900); font-size: 0.95rem; display: block;">{{ $displayTitle }}</strong>
+                                </a>
                                 <span style="font-size: 0.78rem; color: var(--text-muted);">
                                     #{{ $offer->id }} • {{ number_format($offer->area_sqm) }} م² • {{ $offer->bedrooms ?? 0 }} {{ app()->getLocale() === 'ar' ? 'غرف' : 'Beds' }}
                                 </span>
@@ -179,13 +183,49 @@
                             <span class="badge-dark">{{ ucfirst($offer->status) }}</span>
                         @endif
                     </td>
-                    <td style="font-size: 0.85rem; color: var(--text-muted);">
-                        {{ $offer->creator ? $offer->creator->name : (app()->getLocale() === 'ar' ? 'فريق التسويق' : 'Marketing Team') }}
+                    <td>
+                        <div style="font-size: 0.88rem; font-weight: 700; color: var(--primary-900);">
+                            <i class="fa-solid fa-user-tie text-gold" style="font-size: 0.8rem;"></i>
+                            {{ $offer->creator ? $offer->creator->name : (app()->getLocale() === 'ar' ? 'فريق التسويق' : 'Marketing Team') }}
+                        </div>
+                        @if($offer->creator && $offer->creator->phone)
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; direction: ltr; display: inline-flex; align-items: center; gap: 0.35rem;">
+                                <a href="tel:{{ $offer->creator->phone }}" style="color: var(--accent-bronze); text-decoration: none;" title="{{ app()->getLocale() === 'ar' ? 'اتصال بالمسوق' : 'Call Agent' }}">
+                                    <i class="fa-solid fa-phone"></i> {{ $offer->creator->phone }}
+                                </a>
+                            </div>
+                        @endif
                     </td>
                     <td>
-                        <div style="display: flex; gap: 0.4rem;">
+                        @if($canViewOwner)
+                            <div style="font-size: 0.86rem; font-weight: 700; color: #15803d;">
+                                <i class="fa-solid fa-key text-gold"></i>
+                                {{ $offer->owner_name ?: (app()->getLocale() === 'ar' ? 'المالك بالعقد' : 'Owner on deed') }}
+                            </div>
+                            @if($offer->owner_phone)
+                                <div style="margin-top: 3px; display: flex; align-items: center; gap: 0.35rem;">
+                                    <a href="tel:{{ $offer->owner_phone }}" class="badge-gold" style="text-decoration: none; font-size: 0.72rem; padding: 2px 6px;" title="{{ app()->getLocale() === 'ar' ? 'اتصال بالمالك' : 'Call Owner' }}">
+                                        <i class="fa-solid fa-phone"></i> {{ $offer->owner_phone }}
+                                    </a>
+                                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $offer->owner_phone) }}" target="_blank" style="color: #25D366; font-size: 0.85rem;" title="واتساب المالك">
+                                        <i class="fa-brands fa-whatsapp"></i>
+                                    </a>
+                                </div>
+                            @endif
+                        @else
+                            <span class="badge-dark" style="background: #f1f5f9; color: #64748b; font-size: 0.72rem; border: 1px solid #cbd5e1; font-weight: 600;" title="{{ app()->getLocale() === 'ar' ? 'بيانات المالك مخصصة حصرياً لفريق خدمة العملاء والإدارة' : 'Owner contact is restricted to Customer Service & Admin' }}">
+                                <i class="fa-solid fa-lock text-gold"></i> {{ app()->getLocale() === 'ar' ? 'محمي لخدمة العملاء' : 'Protected' }}
+                            </span>
+                        @endif
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 0.35rem;">
+                            <a href="{{ route('admin.offers.show', $offer->id) }}" class="btn-outline-luxury btn-sm" title="{{ app()->getLocale() === 'ar' ? 'تفاصيل العرض وبيانات الوساطة بالـ CRM' : 'View CRM Details' }}" style="background: var(--primary-50); color: var(--primary-900);">
+                                <i class="fa-solid fa-file-invoice"></i>
+                            </a>
+
                             <a href="{{ route('website.offers.show', $offer->slug) }}" target="_blank" class="btn-outline-luxury btn-sm" title="{{ app()->getLocale() === 'ar' ? 'معاينة في الموقع العام' : 'View Public Listing' }}">
-                                <i class="fa-solid fa-eye"></i>
+                                <i class="fa-solid fa-globe"></i>
                             </a>
 
                             @if(auth()->user()->hasPermission('offers.edit') || auth()->user()->isAdmin())
@@ -208,7 +248,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                    <td colspan="9" style="text-align: center; padding: 3rem; color: var(--text-muted);">
                         {{ app()->getLocale() === 'ar' ? 'لم يتم العثور على عروض عقارية مطابقة للتصفية.' : 'No property offers found matching the filters.' }}
                     </td>
                 </tr>

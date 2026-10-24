@@ -113,4 +113,32 @@ class User extends Authenticatable
     {
         return $this->hasRole('admin');
     }
+
+    public function isCustomerService(): bool
+    {
+        return $this->hasRole('customer-service');
+    }
+
+    public function isMarketing(): bool
+    {
+        return $this->hasRole('marketing');
+    }
+
+    /**
+     * Determine if this user is authorized to view confidential property owner contact details.
+     * Admin and Customer Service (or users with specific owner contact permissions) are authorized.
+     * Marketing users and general staff are NOT authorized to view owner contact details.
+     */
+    public function canViewOwnerContact(): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        if ($this->isCustomerService()) {
+            return true;
+        }
+
+        return $this->hasPermission('offers.view_owner_contact') || $this->hasPermission('leads.contact_owner');
+    }
 }

@@ -4,7 +4,7 @@
 @section('page_title', app()->getLocale() === 'ar' ? 'إعدادات النظام / خيارات القوائم المنسدلة' : 'System Settings / Dropdown Options Control')
 
 @section('content')
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
     <div>
         <h3 style="font-size: 1.5rem; color: var(--primary-900); font-family: 'Playfair Display', serif;">
             {{ app()->getLocale() === 'ar' ? 'التحكم في خيارات القوائم المنسدلة' : 'Dropdown Menus & Lookups Control' }}
@@ -18,6 +18,23 @@
         <i class="fa-solid fa-plus"></i>
         <span>{{ app()->getLocale() === 'ar' ? 'إضافة خيار جديد' : 'Add New Option' }}</span>
     </button>
+</div>
+
+<!-- SYSTEM NAVIGATION TABS (SIDEBAR MENUS VS DROPDOWN OPTIONS) -->
+<div style="display: flex; gap: 0.75rem; margin-bottom: 1.75rem;">
+    <a href="{{ route('admin.menus.index') }}" style="text-decoration: none;">
+        <div style="padding: 0.65rem 1.25rem; border-radius: 10px; font-size: 0.9rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.5rem; background: #ffffff; color: var(--primary-900); border: 1px solid var(--border-light);">
+            <i class="fa-solid fa-bars-staggered text-gold"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'القوائم الجانبية والفرعية' : 'Sidebar Navigation Menus' }}</span>
+        </div>
+    </a>
+
+    <a href="{{ route('admin.dropdown-options.index') }}" style="text-decoration: none;">
+        <div style="padding: 0.65rem 1.25rem; border-radius: 10px; font-size: 0.9rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.5rem; background: linear-gradient(135deg, var(--accent-bronze), var(--accent-gold)); color: #fff; box-shadow: 0 4px 12px rgba(163, 105, 57, 0.25);">
+            <i class="fa-solid fa-list-ul"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'خيارات القوائم المنسدلة للعروض (10 أقسام)' : 'Offer Dropdown Options (10 Catalogs)' }}</span>
+        </div>
+    </a>
 </div>
 
 <!-- CATEGORY TABS - WRAP IN SIZE OF SCREEN -->

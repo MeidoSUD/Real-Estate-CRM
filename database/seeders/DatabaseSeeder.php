@@ -82,6 +82,7 @@ class DatabaseSeeder extends Seeder
                     ['name' => 'Edit Offer', 'name_ar' => 'تعديل بيانات العرض', 'slug' => 'offers.edit', 'description' => 'Can edit offer pricing, description, specs and media'],
                     ['name' => 'Delete Offer', 'name_ar' => 'حذف العرض العقاري', 'slug' => 'offers.delete', 'description' => 'Can remove property offers'],
                     ['name' => 'Publish Offer', 'name_ar' => 'تغيير حالة العرض ونشره', 'slug' => 'offers.publish', 'description' => 'Can change status to available, reserved, sold, or rented'],
+                    ['name' => 'View Owner Contact & Notes', 'name_ar' => 'عرض بيانات وتواصل مالك العقار والملاحظات السرية', 'slug' => 'offers.view_owner_contact', 'description' => 'Can view confidential property owner contact details, deed attachments, and private internal notes'],
                 ],
             ],
             [
@@ -139,10 +140,10 @@ class DatabaseSeeder extends Seeder
                     $marketingPermissionIds[] = $createdPerm->id;
                 }
 
-                // Assign to Customer Service
+                // Assign to Customer Service (Includes owner contact access for deal coordination)
                 if (in_array($perm['slug'], [
                     'leads.view', 'leads.contact_owner', 'leads.contact_buyer', 'leads.update_status',
-                    'offers.view',
+                    'offers.view', 'offers.view_owner_contact',
                 ])) {
                     $customerServicePermissionIds[] = $createdPerm->id;
                 }
@@ -291,12 +292,30 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $menuMenus = SidebarMenu::create([
-            'title' => 'Sidebar Navigation',
-            'title_ar' => 'إدارة القوائم',
-            'icon' => 'menu',
-            'route' => 'admin.menus.index',
+            'title' => 'System & Dropdowns',
+            'title_ar' => 'إعدادات القوائم والنظام',
+            'icon' => 'sliders',
+            'route' => null,
             'permission_slug' => 'sidebar.manage',
             'order' => 6,
+            'is_active' => true,
+        ]);
+        SubSidebarMenu::create([
+            'sidebar_menu_id' => $menuMenus->id,
+            'title' => 'Sidebar Navigation',
+            'title_ar' => 'قوائم التنقل الجانبية',
+            'route' => 'admin.menus.index',
+            'permission_slug' => 'sidebar.manage',
+            'order' => 1,
+            'is_active' => true,
+        ]);
+        SubSidebarMenu::create([
+            'sidebar_menu_id' => $menuMenus->id,
+            'title' => 'Property Dropdown Options',
+            'title_ar' => 'خيارات القوائم المنسدلة للعروض',
+            'route' => 'admin.dropdown-options.index',
+            'permission_slug' => 'sidebar.manage',
+            'order' => 2,
             'is_active' => true,
         ]);
 
@@ -321,6 +340,10 @@ class DatabaseSeeder extends Seeder
             'status' => 'available',
             'is_featured' => true,
             'created_by' => $marketingUser->id,
+            'owner_name' => 'الشيخ عبد الله بن محمد آل سيف',
+            'owner_phone' => '+966 50 554 4332',
+            'owner_national_id' => '1048291039',
+            'internal_notes' => 'المالك يفضل التواصل عبر خدمة العملاء لتحديد مواعيد المعاينة، الحد الأدنى للتفاوض 7,200,000 ريال.',
         ]);
 
         PropertyOffer::create([
@@ -343,6 +366,10 @@ class DatabaseSeeder extends Seeder
             'status' => 'available',
             'is_featured' => true,
             'created_by' => $marketingUser->id,
+            'owner_name' => 'د. خالد بن فيصل الغامدي',
+            'owner_phone' => '+966 55 443 2211',
+            'owner_national_id' => '1029481920',
+            'internal_notes' => 'صك إلكتروني محدث، المعاينة متاحة بعد صلاة العصر بالتنسيق المسبق.',
         ]);
 
         PropertyOffer::create([

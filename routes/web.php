@@ -62,6 +62,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::get('/offers', [OfferController::class, 'index'])->name('admin.offers.index');
         Route::get('/offers/create', [OfferController::class, 'create'])->name('admin.offers.create')->middleware('permission:offers.create');
         Route::post('/offers', [OfferController::class, 'store'])->name('admin.offers.store')->middleware('permission:offers.create');
+        Route::get('/offers/{offer}', [OfferController::class, 'show'])->name('admin.offers.show');
         Route::get('/offers/{offer}/edit', [OfferController::class, 'edit'])->name('admin.offers.edit')->middleware('permission:offers.edit');
         Route::put('/offers/{offer}', [OfferController::class, 'update'])->name('admin.offers.update')->middleware('permission:offers.edit');
         Route::delete('/offers/{offer}', [OfferController::class, 'destroy'])->name('admin.offers.destroy')->middleware('permission:offers.delete');

@@ -351,6 +351,41 @@
                 </div>
             </div>
 
+            <!-- OWNER INFORMATION SECTION (CONFIDENTIAL: FOR CS & ADMIN) -->
+            <div style="background: var(--primary-50); border: 1px solid var(--border-light); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <h5 style="font-size: 1rem; color: var(--primary-900); font-weight: 800; display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+                        <i class="fa-solid fa-user-lock text-gold"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'بيانات مالك العقار (سرية ومخصصة لخدمة العملاء والإدارة)' : 'Property Owner Information (Restricted Access)' }}</span>
+                    </h5>
+                    <span class="badge-gold" style="font-size: 0.72rem;">
+                        <i class="fa-solid fa-shield"></i> {{ app()->getLocale() === 'ar' ? 'مشفر ومحمي الصلاحية' : 'Permission Restricted' }}
+                    </span>
+                </div>
+
+                <div class="form-grid-3" style="margin-bottom: 0.75rem;">
+                    <div>
+                        <label class="form-label">{{ app()->getLocale() === 'ar' ? 'اسم مالك العقار' : 'Owner Full Name' }}</label>
+                        <input type="text" name="owner_name" class="form-input" placeholder="{{ app()->getLocale() === 'ar' ? 'مثال: الشيخ عبد الله آل سيف' : 'e.g. Abdullah Al-Saif' }}" value="{{ old('owner_name') }}">
+                    </div>
+
+                    <div>
+                        <label class="form-label">{{ app()->getLocale() === 'ar' ? 'رقم جوال المالك للتواصل المباشر' : 'Owner Phone Number' }}</label>
+                        <input type="text" name="owner_phone" class="form-input" placeholder="+966 5X XXX XXXX" value="{{ old('owner_phone') }}" style="direction: ltr;">
+                    </div>
+
+                    <div>
+                        <label class="form-label">{{ app()->getLocale() === 'ar' ? 'رقم الهوية الوطنية / السجل التجاري' : 'Owner National ID / CR' }}</label>
+                        <input type="text" name="owner_national_id" class="form-input" placeholder="10XXXXXXXX" value="{{ old('owner_national_id') }}">
+                    </div>
+                </div>
+
+                <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+                    <i class="fa-solid fa-circle-info text-gold"></i>
+                    {{ app()->getLocale() === 'ar' ? 'تُحفظ بيانات مالك العقار بصورة سرية لتكون متاحة لفريق خدمة العملاء والإدارة فقط لإجراء المعاينات والتواصل الرسمي، ولا تظهر للموقع العام أو المسوقين الآخرين.' : 'Owner contact is stored securely for Customer Service and Administration to handle viewings, and will not be displayed publicly or to general marketers.' }}
+                </p>
+            </div>
+
             <div class="form-grid-2" style="margin-bottom: 2rem;">
                 <div>
                     <label class="form-label">{{ app()->getLocale() === 'ar' ? 'المدة بالأشهر' : 'Duration in Months' }}</label>

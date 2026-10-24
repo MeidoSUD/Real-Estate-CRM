@@ -139,10 +139,15 @@
                     </td>
                     <td style="max-width: 180px;">
                         @if($lead->propertyOffer)
-                            <a href="{{ route('website.offers.show', $lead->propertyOffer->slug) }}" target="_blank" style="color: var(--primary-900); font-weight: 600; font-size: 0.85rem; display: block;">
-                                {{ $lead->propertyOffer->title }}
+                            <a href="{{ route('admin.offers.show', $lead->propertyOffer->id) }}" style="color: var(--primary-900); font-weight: 700; font-size: 0.88rem; display: block; text-decoration: none;" title="{{ app()->getLocale() === 'ar' ? 'عرض تفاصيل العقار وتواصل المالك' : 'View Offer & Owner Contact' }}">
+                                <i class="fa-solid fa-file-invoice text-gold"></i> {{ $lead->propertyOffer->title }}
                             </a>
-                            <span style="font-size: 0.75rem; color: var(--accent-bronze);">{{ $lead->propertyOffer->district }}</span>
+                            <div style="display: flex; align-items: center; gap: 0.4rem; margin-top: 2px;">
+                                <span style="font-size: 0.75rem; color: var(--accent-bronze); font-weight: 600;">{{ $lead->propertyOffer->district }}</span>
+                                <a href="{{ route('website.offers.show', $lead->propertyOffer->slug) }}" target="_blank" style="color: var(--text-muted); font-size: 0.72rem;" title="{{ app()->getLocale() === 'ar' ? 'معاينة بالموقع العام' : 'Public Link' }}">
+                                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                </a>
+                            </div>
                         @else
                             <span style="color: var(--text-muted); font-size: 0.82rem;">{{ app()->getLocale() === 'ar' ? 'تواصل عام مع الإدارة' : 'General Agency Contact' }}</span>
                         @endif

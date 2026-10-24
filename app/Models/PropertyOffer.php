@@ -49,6 +49,9 @@ class PropertyOffer extends Model
         'plan_number',
         'parcel_number',
         'contract_duration_months',
+        'owner_name',
+        'owner_phone',
+        'owner_national_id',
         'has_agency_poa',
         'deed_image',
         'advertising_channels',
@@ -117,5 +120,42 @@ class PropertyOffer extends Model
     public function getFormattedPriceAttribute(): string
     {
         return number_format($this->price, 0) . ' ' . $this->currency;
+    }
+
+    /**
+     * Check if a given or authenticated user has permission to view confidential owner contact info.
+     */
+    public function canViewOwnerInfo(?User $user = null): bool
+    {
+        $user = $user ?? auth()->user();
+        if (!$user) {
+            return false;
+        }
+
+        return $user->canViewOwnerContact();
+    }
+
+    /**
+     * Return masked owner name if user does not have permission.
+     */
+    public function getMaskedOwnerNameAttribute(): string
+    {
+        if ($this->canViewOwnerInfo()) {
+            return $this->owner_name ?: (app()->getLocale() === 'ar' ? 'غير مسجل' : 'Not recorded');
+        }
+
+        return app()->getLocale() === 'ar' ? 'بيانات المالك سرية (خدمة العملاء والإدارة)' : 'Confidential (Customer Service & Admin)';
+    }
+
+    /**
+     * Return masked owner phone if user does not have permission.
+     */
+    public function getMaskedOwnerPhoneAttribute(): string
+    {
+        if ($this->canViewOwnerInfo()) {
+            return $this->owner_phone ?: (app()->getLocale() === 'ar' ? 'غير مسجل' : 'Not recorded');
+        }
+
+        return app()->getLocale() === 'ar' ? 'محجوب بحسب الصلاحية' : 'Restricted by permissions';
     }
 }

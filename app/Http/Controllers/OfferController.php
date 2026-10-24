@@ -102,12 +102,15 @@ class OfferController extends Controller
             'area_sqm' => ['required', 'numeric', 'min:1'],
             'status' => ['required', Rule::in(['available', 'reserved', 'sold', 'rented'])],
 
-            // Contract Info
+            // Contract & Owner Info
             'contract_type' => ['nullable', 'string', 'max:100'],
             'deed_number' => ['nullable', 'string', 'max:100'],
             'plan_number' => ['nullable', 'string', 'max:100'],
             'parcel_number' => ['nullable', 'string', 'max:100'],
             'contract_duration_months' => ['nullable', 'integer', 'min:1'],
+            'owner_name' => ['nullable', 'string', 'max:255'],
+            'owner_phone' => ['nullable', 'string', 'max:50'],
+            'owner_national_id' => ['nullable', 'string', 'max:50'],
             'has_agency_poa' => ['nullable', 'string', 'max:20'],
             'deed_image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,pdf', 'max:5120'],
 
@@ -222,6 +225,9 @@ class OfferController extends Controller
             'plan_number' => $validated['plan_number'] ?? null,
             'parcel_number' => $validated['parcel_number'] ?? null,
             'contract_duration_months' => $validated['contract_duration_months'] ?? null,
+            'owner_name' => $validated['owner_name'] ?? null,
+            'owner_phone' => $validated['owner_phone'] ?? null,
+            'owner_national_id' => $validated['owner_national_id'] ?? null,
             'has_agency_poa' => $validated['has_agency_poa'] ?? 'no',
             'deed_image' => $deedImagePath,
             'advertising_channels' => $validated['advertising_channels'] ?? [],
@@ -246,6 +252,15 @@ class OfferController extends Controller
 
         return redirect()->route('admin.offers.index')
             ->with('success', app()->getLocale() === 'ar' ? 'تم إنشاء وحفظ العرض العقاري بنجاح.' : 'Property offer created successfully.');
+    }
+
+    /**
+     * Display internal CRM property offer details with role-based owner contact visibility.
+     */
+    public function show(PropertyOffer $offer): View
+    {
+        $offer->load('creator');
+        return view('admin.offers.show', compact('offer'));
     }
 
     /**
@@ -278,12 +293,15 @@ class OfferController extends Controller
             'area_sqm' => ['required', 'numeric', 'min:1'],
             'status' => ['required', Rule::in(['available', 'reserved', 'sold', 'rented'])],
 
-            // Contract Info
+            // Contract & Owner Info
             'contract_type' => ['nullable', 'string', 'max:100'],
             'deed_number' => ['nullable', 'string', 'max:100'],
             'plan_number' => ['nullable', 'string', 'max:100'],
             'parcel_number' => ['nullable', 'string', 'max:100'],
             'contract_duration_months' => ['nullable', 'integer', 'min:1'],
+            'owner_name' => ['nullable', 'string', 'max:255'],
+            'owner_phone' => ['nullable', 'string', 'max:50'],
+            'owner_national_id' => ['nullable', 'string', 'max:50'],
             'has_agency_poa' => ['nullable', 'string', 'max:20'],
             'deed_image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,pdf', 'max:5120'],
 
@@ -378,11 +396,24 @@ class OfferController extends Controller
             'features' => $validated['features'] ?? ($offer->features ?: []),
             'utilities_services' => $validated['utilities_services'] ?? ($offer->utilities_services ?: []),
             'video_url' => $validated['video_url'] ?? $offer->video_url,
-            'internal_notes' => $validated['internal_notes'] ?? $offer->internal_notes,
         ];
 
-        // Handle Deed Attachment
-        if ($request->hasFile('deed_image')) {
+        // Owner confidential details: only users with permission can update them
+        if (auth()->user()->canViewOwnerContact()) {
+            $data['owner_name'] = $validated['owner_name'] ?? $offer->owner_name;
+            $data['owner_phone'] = $validated['owner_phone'] ?? $offer->owner_phone;
+            $data['owner_national_id'] = $validated['owner_national_id'] ?? $offer->owner_national_id;
+            $data['internal_notes'] = $validated['internal_notes'] ?? $offer->internal_notes;
+        } else {
+            // Preserve existing owner details and notes intact
+            $data['owner_name'] = $offer->owner_name;
+            $data['owner_phone'] = $offer->owner_phone;
+            $data['owner_national_id'] = $offer->owner_national_id;
+            $data['internal_notes'] = $offer->internal_notes;
+        }
+
+        // Handle Deed Attachment (only if user has permission to view/manage owner documents)
+        if (auth()->user()->canViewOwnerContact() && $request->hasFile('deed_image')) {
             $data['deed_image'] = $request->file('deed_image')->store('properties/deeds', 'public');
         }
 
