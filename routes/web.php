@@ -45,6 +45,13 @@ Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// OTP Login & Password Recovery
+Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('password.request');
+Route::post('/forgot-password', [AuthController::class, 'sendOtp'])->name('password.email');
+Route::get('/verify-otp', [AuthController::class, 'showVerifyOtp'])->name('auth.otp.verify');
+Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])->name('auth.otp.verify.post');
+Route::post('/resend-otp', [AuthController::class, 'resendOtp'])->name('auth.otp.resend');
+
 /*
 |--------------------------------------------------------------------------
 | Protected CRM Portal

@@ -23,6 +23,7 @@ class UserController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('first_name', 'like', "%{$search}%")
                   ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('employee_number', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%")
                   ->orWhere('phone', 'like', "%{$search}%")
                   ->orWhere('job_title', 'like', "%{$search}%");
@@ -52,6 +53,7 @@ class UserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
+            'employee_number' => ['nullable', 'string', 'max:50', 'unique:users,employee_number'],
             'first_name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
@@ -70,7 +72,12 @@ class UserController extends Controller
             $photoPath = $request->file('profile_photo')->store('avatars', 'public');
         }
 
+        $empNumber = !empty($validated['employee_number'])
+            ? trim($validated['employee_number'])
+            : 'EMP-' . (1000 + (User::max('id') ?? 0) + 1);
+
         User::create([
+            'employee_number' => $empNumber,
             'first_name' => $validated['first_name'],
             'last_name' => $validated['last_name'],
             'email' => $validated['email'],
@@ -97,6 +104,7 @@ class UserController extends Controller
     public function update(Request $request, User $user): RedirectResponse
     {
         $validated = $request->validate([
+            'employee_number' => ['nullable', 'string', 'max:50', Rule::unique('users', 'employee_number')->ignore($user->id)],
             'first_name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
@@ -111,6 +119,7 @@ class UserController extends Controller
         ]);
 
         $data = [
+            'employee_number' => !empty($validated['employee_number']) ? trim($validated['employee_number']) : $user->employee_number,
             'first_name' => $validated['first_name'],
             'last_name' => $validated['last_name'],
             'email' => $validated['email'],

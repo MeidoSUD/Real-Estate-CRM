@@ -44,21 +44,6 @@
             width: 100%;
             max-width: 440px;
         }
-        .quick-role-badge {
-            background: var(--primary-50);
-            border: 1px solid var(--border-light);
-            border-radius: 10px;
-            padding: 0.65rem 0.85rem;
-            font-size: 0.84rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            width: 100%;
-        }
-        .quick-role-badge:hover {
-            border-color: var(--accent-bronze);
-            background: #fff;
-            box-shadow: 0 4px 12px rgba(163, 105, 57, 0.15);
-        }
         @media (max-width: 900px) {
             .login-layout { grid-template-columns: 1fr; }
             .login-brand-side { display: none; }
@@ -114,7 +99,7 @@
                     {{ app()->getLocale() === 'ar' ? 'تسجيل دخول الموظفين' : 'Sign In to CRM' }}
                 </h2>
                 <p style="color: var(--text-muted); font-size: 0.95rem;">
-                    {{ app()->getLocale() === 'ar' ? 'أدخل بيانات الاعتماد للوصول لنظام إدارة عقارات صفران.' : 'Enter your staff credentials to access Safran Real Estate CRM.' }}
+                    {{ app()->getLocale() === 'ar' ? 'أدخل بيانات الاعتماد الرسمية للوصول لنظام إدارة عقارات صفران.' : 'Enter your official staff credentials to access Safran Real Estate CRM.' }}
                 </p>
             </div>
 
@@ -139,17 +124,22 @@
                 @csrf
 
                 <div style="margin-bottom: 1.25rem;">
-                    <label class="form-label">{{ app()->getLocale() === 'ar' ? 'البريد الإلكتروني (اسم المستخدم)' : 'Email Address' }}</label>
+                    <label class="form-label">{{ app()->getLocale() === 'ar' ? 'البريد الإلكتروني أو الرقم الوظيفي' : 'Email or Employee Number' }}</label>
                     <div class="form-input-with-icon" style="position: relative;">
-                        <input type="email" id="email" name="email" required autofocus value="{{ old('email', 'admin@realestate.sa') }}" class="form-input" style="padding-inline-start: 2.75rem;" placeholder="staff@realestate.sa">
-                        <i class="fa-solid fa-envelope" style="position: absolute; inset-inline-start: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+                        <input type="text" id="login" name="login" required autofocus value="{{ old('login') }}" class="form-input" style="padding-inline-start: 2.75rem;" placeholder="{{ app()->getLocale() === 'ar' ? 'البريد الإلكتروني أو الرقم الوظيفي (مثال: 1001)' : 'Email or Employee ID (e.g. 1001 or staff@realestate.sa)' }}">
+                        <i class="fa-solid fa-id-badge" style="position: absolute; inset-inline-start: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
                     </div>
                 </div>
 
-                <div style="margin-bottom: 1.5rem;">
-                    <label class="form-label">{{ app()->getLocale() === 'ar' ? 'كلمة المرور' : 'Password' }}</label>
+                <div style="margin-bottom: 1.25rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                        <label class="form-label" style="margin-bottom: 0;">{{ app()->getLocale() === 'ar' ? 'كلمة المرور' : 'Password' }}</label>
+                        <a href="{{ route('password.request') }}" style="font-size: 0.82rem; color: var(--accent-bronze); text-decoration: none; font-weight: 600;">
+                            {{ app()->getLocale() === 'ar' ? 'نسيت كلمة المرور؟' : 'Forgot Password?' }}
+                        </a>
+                    </div>
                     <div class="form-input-with-icon" style="position: relative;">
-                        <input type="password" id="password" name="password" required value="password" class="form-input" style="padding-inline-start: 2.75rem;" placeholder="••••••••">
+                        <input type="password" id="password" name="password" required class="form-input" style="padding-inline-start: 2.75rem;" placeholder="••••••••">
                         <i class="fa-solid fa-lock" style="position: absolute; inset-inline-start: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
                     </div>
                 </div>
@@ -159,57 +149,27 @@
                         <input type="checkbox" name="remember" style="accent-color: var(--accent-bronze);">
                         <span>{{ app()->getLocale() === 'ar' ? 'تذكر تسجيل دخولي' : 'Keep me signed in' }}</span>
                     </label>
-                    <span style="font-size: 0.82rem; color: var(--accent-bronze); font-weight: 700;">
-                        {{ app()->getLocale() === 'ar' ? 'خادم جدة الآمن' : 'Jeddah Server' }}
-                    </span>
+                    <a href="{{ route('password.request') }}" style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.82rem; color: var(--primary-900); background: #f4ede6; padding: 4px 10px; border-radius: 6px; text-decoration: none; font-weight: 600;">
+                        <i class="fa-solid fa-envelope-circle-check text-gold"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'دخول عبر رمز OTP' : 'Login with OTP' }}</span>
+                    </a>
                 </div>
 
                 <button type="submit" class="btn-luxury" style="width: 100%; height: 48px; font-size: 1rem;">
                     <i class="fa-solid fa-arrow-right-to-bracket"></i>
-                    <span>{{ app()->getLocale() === 'ar' ? 'تسجيل الدخول والمتابعة' : 'Authenticate & Enter' }}</span>
+                    <span>{{ app()->getLocale() === 'ar' ? 'تسجيل الدخول والمتابعة' : 'Sign In & Enter' }}</span>
                 </button>
             </form>
 
-            <div style="margin-top: 2rem; padding: 1.25rem; background: var(--bg-cream); border-radius: var(--radius-md); border: 1px dashed var(--border-light);">
-                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
-                    <i class="fa-solid fa-key text-gold"></i>
-                    <strong style="font-size: 0.85rem; color: var(--primary-900);">
-                        {{ app()->getLocale() === 'ar' ? 'حسابات تجريبية سريعة (اضغط للتعبئة):' : 'Quick Login Profiles (Click to fill):' }}
-                    </strong>
-                </div>
-
-                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                    <button type="button" class="quick-role-badge" onclick="fillCredentials('admin@realestate.sa', 'password')">
-                        <strong style="color: var(--primary-900); display: block;">👑 {{ app()->getLocale() === 'ar' ? 'المدير العام (الإدارة والتحكم الكامل)' : 'Executive Administrator' }}</strong>
-                        <span style="color: var(--text-muted); font-size: 0.78rem;">admin@realestate.sa ({{ app()->getLocale() === 'ar' ? 'إضافة الموظفين، الأدوار، الصلاحيات' : 'Full CRM, roles & user controls' }})</span>
-                    </button>
-
-                    <button type="button" class="quick-role-badge" onclick="fillCredentials('marketing@realestate.sa', 'password')">
-                        <strong style="color: var(--primary-900); display: block;">📢 {{ app()->getLocale() === 'ar' ? 'فريق التسويق (تجميع وإدارة العروض)' : 'Marketing Team' }}</strong>
-                        <span style="color: var(--text-muted); font-size: 0.78rem;">marketing@realestate.sa ({{ app()->getLocale() === 'ar' ? 'إضافة وتعديل العروض ونشرها' : 'Collect & manage offers' }})</span>
-                    </button>
-
-                    <button type="button" class="quick-role-badge" onclick="fillCredentials('service@realestate.sa', 'password')">
-                        <strong style="color: var(--primary-900); display: block;">🎧 {{ app()->getLocale() === 'ar' ? 'خدمة العملاء (التواصل مع الملاك والمشترين)' : 'Customer Service' }}</strong>
-                        <span style="color: var(--text-muted); font-size: 0.78rem;">service@realestate.sa ({{ app()->getLocale() === 'ar' ? 'متابعة الطلبات، معاينة العقارات' : 'Contact owners & buyers' }})</span>
-                    </button>
-                </div>
+            <div style="text-align: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-light);">
+                <p style="margin: 0; font-size: 0.82rem; color: var(--text-muted); line-height: 1.6;">
+                    <i class="fa-solid fa-shield-halved text-gold"></i>
+                    {{ app()->getLocale() === 'ar' ? 'بوابة دخول آمنة لموظفي شركة صفران العقارية. يمكنك الدخول ببريدك أو رقمك الوظيفي، أو طلب رمز تحقق OTP على بريدك.' : 'Secure portal for Safran Real Estate staff. Sign in with email or employee number, or request an email OTP.' }}
+                </p>
             </div>
-
-            <p style="text-align: center; margin-top: 1.5rem; font-size: 0.82rem; color: var(--text-muted);">
-                <i class="fa-solid fa-info-circle"></i>
-                {{ app()->getLocale() === 'ar' ? 'التسجيل العام معطل. يتم إنشاء حسابات الموظفين حصرياً بواسطة مسؤول النظام.' : 'Public registration is restricted. Only Administrators can provision user accounts.' }}
-            </p>
         </div>
     </div>
 </div>
-
-<script>
-function fillCredentials(email, password) {
-    document.getElementById('email').value = email;
-    document.getElementById('password').value = password;
-}
-</script>
 
 </body>
 </html>

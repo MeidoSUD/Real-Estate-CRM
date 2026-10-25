@@ -81,7 +81,12 @@
                         <div style="display: flex; align-items: center; gap: 0.85rem;">
                             <img src="{{ $user->profile_photo_url }}" alt="{{ $user->name }}" style="width: 44px; height: 44px; border-radius: 10px; object-fit: cover; border: 1.5px solid var(--accent-bronze); flex-shrink: 0;">
                             <div>
-                                <strong style="color: var(--primary-900); font-size: 0.95rem;">{{ $user->name }}</strong>
+                                <div style="display: flex; align-items: center; gap: 0.4rem;">
+                                    <strong style="color: var(--primary-900); font-size: 0.95rem;">{{ $user->name }}</strong>
+                                    <span style="font-family: monospace; font-size: 0.72rem; background: #faf4ed; border: 1px solid var(--accent-bronze); color: var(--accent-bronze); padding: 1px 6px; border-radius: 4px; font-weight: 700;">
+                                        {{ $user->employee_number ?? 'EMP-' . $user->id }}
+                                    </span>
+                                </div>
                                 <div style="font-size: 0.78rem; color: var(--text-muted);">
                                     {{ app()->getLocale() === 'ar' ? 'انضم في ' . $user->created_at->locale('ar')->translatedFormat('F Y') : 'Joined ' . $user->created_at->format('M Y') }}
                                 </div>

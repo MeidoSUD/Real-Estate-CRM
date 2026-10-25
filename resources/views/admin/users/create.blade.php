@@ -40,9 +40,14 @@
                 </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem;">
+            <div style="display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem;">
                 <div>
-                    <label class="form-label">{{ app()->getLocale() === 'ar' ? 'البريد الإلكتروني (اسم تسجيل الدخول) *' : 'Email Address (Login ID) *' }}</label>
+                    <label class="form-label">{{ app()->getLocale() === 'ar' ? 'الرقم الوظيفي (اختياري)' : 'Employee ID (Optional)' }}</label>
+                    <input type="text" name="employee_number" value="{{ old('employee_number') }}" class="form-input" placeholder="EMP-1004">
+                    <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 2px;">{{ app()->getLocale() === 'ar' ? 'يُولد تلقائياً إن تُرك فارغاً' : 'Auto-generated if left blank' }}</span>
+                </div>
+                <div>
+                    <label class="form-label">{{ app()->getLocale() === 'ar' ? 'البريد الإلكتروني (لتسجيل الدخول وOTP) *' : 'Email Address (Login & OTP) *' }}</label>
                     <input type="email" name="email" required value="{{ old('email') }}" class="form-input" placeholder="name@realestate.sa">
                 </div>
                 <div>

@@ -20,6 +20,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'employee_number',
         'first_name',
         'last_name',
         'email',
@@ -31,6 +32,8 @@ class User extends Authenticatable
         'address',
         'role_id',
         'is_active',
+        'otp_code',
+        'otp_expires_at',
     ];
 
     /**
@@ -41,6 +44,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'otp_code',
     ];
 
     /**
@@ -52,9 +56,84 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'otp_expires_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
         ];
+    }
+
+    /**
+     * Find a user by either email or employee number (e.g. 1001 or EMP-1001).
+     */
+    public static function findByLoginIdentifier(?string $identifier): ?self
+    {
+        if (empty($identifier)) {
+            return null;
+        }
+
+        $identifier = trim($identifier);
+
+        if (filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+            return static::where('email', strtolower($identifier))->first();
+        }
+
+        // Try exact employee_number match
+        $user = static::where('employee_number', $identifier)->first();
+        if ($user) {
+            return $user;
+        }
+
+        // If numeric like '1001', check for 'EMP-1001'
+        if (is_numeric($identifier)) {
+            $user = static::where('employee_number', 'EMP-' . $identifier)->first();
+            if ($user) {
+                return $user;
+            }
+        }
+
+        // Fallback: check email without strict filter
+        return static::where('email', strtolower($identifier))->first();
+    }
+
+    /**
+     * Generate a 6-digit OTP code valid for 15 minutes.
+     */
+    public function generateOtp(): string
+    {
+        $otp = (string) random_int(100000, 999999);
+        $this->update([
+            'otp_code' => $otp,
+            'otp_expires_at' => now()->addMinutes(15),
+        ]);
+
+        return $otp;
+    }
+
+    /**
+     * Verify if provided OTP matches and has not expired.
+     */
+    public function verifyOtp(string $otp): bool
+    {
+        if (empty($this->otp_code) || empty($this->otp_expires_at)) {
+            return false;
+        }
+
+        if (now()->isAfter($this->otp_expires_at)) {
+            return false;
+        }
+
+        return hash_equals((string) $this->otp_code, trim($otp));
+    }
+
+    /**
+     * Clear OTP after successful use.
+     */
+    public function clearOtp(): void
+    {
+        $this->update([
+            'otp_code' => null,
+            'otp_expires_at' => null,
+        ]);
     }
 
     public function role(): BelongsTo

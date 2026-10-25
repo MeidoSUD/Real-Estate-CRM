@@ -44,14 +44,18 @@
                 </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem;">
+            <div style="display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem;">
+                <div>
+                    <label class="form-label">{{ app()->getLocale() === 'ar' ? 'الرقم الوظيفي' : 'Employee ID' }}</label>
+                    <input type="text" name="employee_number" value="{{ old('employee_number', $user->employee_number) }}" class="form-input">
+                </div>
                 <div>
                     <label class="form-label">{{ app()->getLocale() === 'ar' ? 'البريد الإلكتروني *' : 'Email Address *' }}</label>
                     <input type="email" name="email" required value="{{ old('email', $user->email) }}" class="form-input">
                 </div>
                 <div>
-                    <label class="form-label">{{ app()->getLocale() === 'ar' ? 'تعيين كلمة مرور جديدة (اتركه فارغاً للإبقاء على الحالية)' : 'Reset Password (Leave blank to keep)' }}</label>
-                    <input type="password" name="password" class="form-input" placeholder="{{ app()->getLocale() === 'ar' ? 'كلمة مرور جديدة (اختياري)' : 'New password (optional)' }}">
+                    <label class="form-label">{{ app()->getLocale() === 'ar' ? 'كلمة المرور الجديدة' : 'Reset Password' }}</label>
+                    <input type="password" name="password" class="form-input" placeholder="{{ app()->getLocale() === 'ar' ? 'اتركه فارغاً للإبقاء' : 'Leave blank to keep' }}">
                 </div>
             </div>
 

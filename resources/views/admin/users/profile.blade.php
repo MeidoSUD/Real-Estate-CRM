@@ -23,8 +23,12 @@
                 <img src="{{ $user->profile_photo_url }}" alt="{{ $user->name }}" style="width: 80px; height: 80px; border-radius: 18px; object-fit: cover; border: 2px solid var(--accent-bronze); flex-shrink: 0;">
                 <div>
                     <h4 style="font-size: 1.3rem; color: var(--primary-900); font-weight: 800;">{{ $user->name }}</h4>
-                    <div style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 0.35rem;">{{ $user->email }}</div>
-                    <span class="badge-gold">{{ $user->role ? $user->role->name : (app()->getLocale() === 'ar' ? 'موظف' : 'Staff') }}</span>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.35rem;">
+                        <span class="badge-gold">{{ $user->role ? $user->role->name : (app()->getLocale() === 'ar' ? 'موظف' : 'Staff') }}</span>
+                        <span style="font-family: monospace; font-size: 0.78rem; background: #faf4ed; border: 1px solid var(--accent-bronze); color: var(--accent-bronze); padding: 2px 8px; border-radius: 4px; font-weight: 700;">
+                            <i class="fa-solid fa-id-badge"></i> {{ $user->employee_number ?? 'EMP-' . $user->id }}
+                        </span>
+                    </div>
                 </div>
             </div>
 
