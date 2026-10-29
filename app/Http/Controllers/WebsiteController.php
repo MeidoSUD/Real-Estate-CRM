@@ -87,7 +87,7 @@ class WebsiteController extends Controller
 
     public function offerShow(string $slug): View
     {
-        $offer = PropertyOffer::where('slug', $slug)->firstOrFail();
+        $offer = PropertyOffer::with('creator')->where('slug', $slug)->firstOrFail();
         $relatedOffers = PropertyOffer::where('id', '!=', $offer->id)
             ->where(function ($q) use ($offer) {
                 $q->where('district', $offer->district)

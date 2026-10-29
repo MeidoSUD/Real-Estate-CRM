@@ -120,7 +120,7 @@
                 @php
                     $displayTitle = (app()->getLocale() === 'ar' && !empty($offer->title_ar)) ? $offer->title_ar : $offer->title;
                     $photoCount = is_array($offer->categorized_images) ? count($offer->categorized_images) : 0;
-                    $canViewOwner = auth()->user()->canViewOwnerContact();
+                    $canViewOwner = $offer->canViewOwnerInfo();
                 @endphp
                 <tr>
                     <td>
@@ -213,8 +213,8 @@
                                 </div>
                             @endif
                         @else
-                            <span class="badge-dark" style="background: #f1f5f9; color: #64748b; font-size: 0.72rem; border: 1px solid #cbd5e1; font-weight: 600;" title="{{ app()->getLocale() === 'ar' ? 'بيانات المالك مخصصة حصرياً لفريق خدمة العملاء والإدارة' : 'Owner contact is restricted to Customer Service & Admin' }}">
-                                <i class="fa-solid fa-lock text-gold"></i> {{ app()->getLocale() === 'ar' ? 'محمي لخدمة العملاء' : 'Protected' }}
+                            <span class="badge-dark" style="background: #f1f5f9; color: #64748b; font-size: 0.72rem; border: 1px solid #cbd5e1; font-weight: 600;" title="{{ app()->getLocale() === 'ar' ? 'بيانات المالك خاصة ومتاحة حصرياً لمنشئ هذا العرض والإدارة' : 'Owner contact is restricted strictly to the listing creator & Admin' }}">
+                                <i class="fa-solid fa-lock text-gold"></i> {{ app()->getLocale() === 'ar' ? 'خاص بمنشئ العرض' : 'Creator Only' }}
                             </span>
                         @endif
                     </td>

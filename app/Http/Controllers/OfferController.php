@@ -403,8 +403,8 @@ class OfferController extends Controller
             'video_url' => $validated['video_url'] ?? $offer->video_url,
         ];
 
-        // Owner confidential details: only users with permission can update them
-        if (auth()->user()->canViewOwnerContact()) {
+        // Owner confidential details: only creator or admin can view and update them
+        if ($offer->canViewOwnerInfo()) {
             $data['owner_name'] = $validated['owner_name'] ?? $offer->owner_name;
             $data['owner_phone'] = $validated['owner_phone'] ?? $offer->owner_phone;
             $data['owner_national_id'] = $validated['owner_national_id'] ?? $offer->owner_national_id;
@@ -418,7 +418,7 @@ class OfferController extends Controller
         }
 
         // Handle Deed Attachment (only if user has permission to view/manage owner documents)
-        if (auth()->user()->canViewOwnerContact() && $request->hasFile('deed_image')) {
+        if ($offer->canViewOwnerInfo() && $request->hasFile('deed_image')) {
             $data['deed_image'] = $request->file('deed_image')->store('properties/deeds', 'public');
         }
 

@@ -273,10 +273,10 @@
                 </h3>
 
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; font-size: 0.95rem;">
-                    @if($offer->deed_number)
+                    @if($offer->ad_license_number)
                         <div style="display: flex; justify-content: space-between; padding: 0.6rem 0; border-bottom: 1px solid var(--border-light);">
-                            <span style="color: var(--text-muted); font-weight: 600;">{{ app()->getLocale() === 'ar' ? 'رقم الصك العقاري:' : 'Deed Number:' }}</span>
-                            <span style="font-weight: 800; color: var(--primary-900);">{{ $offer->deed_number }}</span>
+                            <span style="color: var(--text-muted); font-weight: 600;">{{ app()->getLocale() === 'ar' ? 'رقم ترخيص الإعلان (فال):' : 'Ad License No (REGA):' }}</span>
+                            <span style="font-weight: 800; color: #15803d;"><i class="fa-solid fa-certificate"></i> {{ $offer->ad_license_number }}</span>
                         </div>
                     @endif
 
@@ -426,22 +426,55 @@
             </div>
         </div>
 
-        <!-- SIDEBAR / CUSTOMER SERVICE INQUIRY FORM -->
+        @php
+            $agent = $offer->creator;
+            $agentName = $agent ? $agent->name : (app()->getLocale() === 'ar' ? 'المسوق العقاري المعتمد' : 'Authorized Listing Agent');
+            $agentPhone = $agent && $agent->phone ? $agent->phone : null;
+            $cleanPhone = $agentPhone ? preg_replace('/[^0-9]/', '', $agentPhone) : '966501234567';
+            if ($agentPhone && str_starts_with($cleanPhone, '05')) {
+                $cleanPhone = '966' . substr($cleanPhone, 1);
+            } elseif ($agentPhone && str_starts_with($cleanPhone, '5') && strlen($cleanPhone) === 9) {
+                $cleanPhone = '966' . $cleanPhone;
+            }
+        @endphp
+
+        <!-- SIDEBAR / AGENT CONTACT & INQUIRY FORM -->
         <div>
             <div class="inquiry-card">
-                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem;">
-                    <div style="width: 48px; height: 48px; border-radius: 12px; background: var(--primary-900); display: flex; align-items: center; justify-content: center; color: var(--accent-gold); font-size: 1.25rem; flex-shrink: 0;">
-                        <i class="fa-solid fa-headset"></i>
+                <!-- AGENT / CREATOR PROFILE -->
+                <div style="display: flex; align-items: center; gap: 0.85rem; margin-bottom: 1.25rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border-light);">
+                    <div style="width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, var(--primary-900), var(--primary-800)); display: flex; align-items: center; justify-content: center; color: var(--accent-gold); font-size: 1.35rem; flex-shrink: 0; box-shadow: 0 4px 12px rgba(10, 25, 47, 0.15);">
+                        <i class="fa-solid fa-user-tie"></i>
                     </div>
-                    <div>
-                        <h4 style="font-size: 1.2rem; color: var(--primary-900); font-weight: 800;">
-                            {{ app()->getLocale() === 'ar' ? 'مكتب خدمة العملاء بجدة' : 'Customer Service Desk' }}
-                        </h4>
-                        <span style="font-size: 0.82rem; color: var(--text-muted);">
-                            {{ app()->getLocale() === 'ar' ? 'تنسيق المعاينة والمفاوضات' : 'Client Relations & Viewings' }}
+                    <div style="flex-grow: 1;">
+                        <span style="font-size: 0.72rem; color: var(--accent-bronze); font-weight: 800; display: block; text-transform: uppercase; letter-spacing: 0.5px;">
+                            {{ app()->getLocale() === 'ar' ? 'المسوق المعتمد للعقار' : 'Authorized Listing Agent' }}
                         </span>
+                        <h4 style="font-size: 1.15rem; color: var(--primary-900); font-weight: 800; margin: 2px 0 0;">
+                            {{ $agentName }}
+                        </h4>
+                        @if($agentPhone)
+                            <div style="font-size: 0.88rem; color: var(--text-muted); direction: ltr; text-align: {{ app()->getLocale() === 'ar' ? 'right' : 'left' }}; font-weight: 700; margin-top: 3px;">
+                                <i class="fa-solid fa-phone text-gold" style="font-size: 0.75rem;"></i> {{ $agentPhone }}
+                            </div>
+                        @endif
                     </div>
                 </div>
+
+                @if($agentPhone)
+                    <!-- DIRECT CALL & WHATSAPP TO THE USER WHO ADDED THE OFFER -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1.25rem;">
+                        <a href="tel:{{ $agentPhone }}" class="btn-luxury" style="padding: 0.65rem 0.5rem; font-size: 0.88rem; justify-content: center; text-decoration: none; border-radius: 8px;">
+                            <i class="fa-solid fa-phone"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'اتصال بالمسوق' : 'Call Agent' }}</span>
+                        </a>
+
+                        <a href="https://wa.me/{{ $cleanPhone }}?text={{ urlencode('السلام عليكم ورحمة الله، أود الاستفسار بخصوص العرض العقاري: ' . $displayTitle) }}" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; background: #25D366; color: #fff; font-weight: 700; border-radius: 8px; text-decoration: none; padding: 0.65rem 0.5rem; font-size: 0.88rem;">
+                            <i class="fa-brands fa-whatsapp" style="font-size: 1.15rem;"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'واتساب' : 'WhatsApp' }}</span>
+                        </a>
+                    </div>
+                @endif
 
                 @if(session('inquiry_success'))
                     <div class="alert-success" style="margin-bottom: 1rem; padding: 0.75rem 1rem; border-radius: 8px; background: #dcfce7; color: #15803d; font-size: 0.9rem;">
@@ -450,8 +483,8 @@
                     </div>
                 @endif
 
-                <p style="font-size: 0.92rem; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.6;">
-                    {{ app()->getLocale() === 'ar' ? 'هل ترغب في حجز موعد لمعاينة هذا العقار؟ املأ بياناتك وسيتواصل معك وكيل خدمة العملاء فوراً.' : 'Interested in this property? Inquire directly with our customer service team to schedule an on-site viewing.' }}
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.25rem; line-height: 1.6;">
+                    {{ app()->getLocale() === 'ar' ? 'هل ترغب في حجز موعد لمعاينة هذا العقار؟ املأ بياناتك وسيتواصل معك المسوق مباشرة.' : 'Interested in this property? Send an inquiry directly to the listing agent to arrange an on-site viewing.' }}
                 </p>
 
                 <form action="{{ route('website.inquiry.store') }}" method="POST">
@@ -481,14 +514,14 @@
 
                     <button type="submit" class="btn-luxury" style="width: 100%; height: 48px; font-size: 1rem;">
                         <i class="fa-solid fa-paper-plane"></i>
-                        <span>{{ app()->getLocale() === 'ar' ? 'إرسال الطلب لخدمة العملاء' : 'Send Inquiry to Agents' }}</span>
+                        <span>{{ app()->getLocale() === 'ar' ? 'إرسال الطلب للمسوق' : 'Send Inquiry to Agent' }}</span>
                     </button>
                 </form>
 
                 <div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border-light); text-align: center;">
-                    <a href="https://wa.me/966501234567?text={{ urlencode('السلام عليكم، أود الاستفسار بخصوص: ' . $displayTitle) }}" target="_blank" style="color: #15803d; font-weight: 700; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+                    <a href="https://wa.me/{{ $cleanPhone }}?text={{ urlencode('السلام عليكم، أود الاستفسار بخصوص العرض: ' . $displayTitle) }}" target="_blank" style="color: #15803d; font-weight: 700; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none;">
                         <i class="fa-brands fa-whatsapp" style="font-size: 1.25rem;"></i>
-                        <span>{{ app()->getLocale() === 'ar' ? 'محادثة مباشرة عبر واتساب' : 'Direct WhatsApp Inquiry' }}</span>
+                        <span>{{ app()->getLocale() === 'ar' ? 'محادثة مباشرة عبر واتساب' : 'Direct WhatsApp Inquiry' }}@if($agentPhone) ({{ $agentPhone }})@endif</span>
                     </a>
                 </div>
             </div>

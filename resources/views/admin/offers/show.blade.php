@@ -3,7 +3,7 @@
 @php
     $displayTitle = (app()->getLocale() === 'ar' && !empty($offer->title_ar)) ? $offer->title_ar : $offer->title;
     $photoCount = is_array($offer->categorized_images) ? count($offer->categorized_images) : 0;
-    $canViewOwner = auth()->user()->canViewOwnerContact();
+    $canViewOwner = $offer->canViewOwnerInfo();
 @endphp
 
 @section('title', $displayTitle . ' | ' . (app()->getLocale() === 'ar' ? 'تفاصيل العرض الداخلي' : 'Offer Details'))
@@ -385,9 +385,9 @@
             </p>
         </div>
 
-        <!-- 2. OWNER CONTACT CARD (PERMISSION RESTRICTED: CUSTOMER SERVICE & ADMIN ONLY) -->
+        <!-- 2. OWNER CONTACT CARD (PERMISSION RESTRICTED: CREATOR & ADMIN ONLY) -->
         @if($canViewOwner)
-            <!-- AUTHORIZED VIEW: CUSTOMER SERVICE & ADMIN -->
+            <!-- AUTHORIZED VIEW: CREATOR & ADMIN -->
             <div class="contact-card-owner">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border-light); padding-bottom: 0.75rem;">
                     <div style="display: flex; align-items: center; gap: 0.6rem;">
@@ -399,7 +399,7 @@
                                 {{ app()->getLocale() === 'ar' ? 'بيانات مالك العقار وعقد الوساطة' : 'Owner Contact & Deed Info' }}
                             </h4>
                             <span style="font-size: 0.75rem; color: #15803d; font-weight: 700;">
-                                <i class="fa-solid fa-circle-check"></i> {{ app()->getLocale() === 'ar' ? 'متاح لخدمة العملاء والإدارة' : 'Authorized Access' }}
+                                <i class="fa-solid fa-circle-check"></i> {{ app()->getLocale() === 'ar' ? 'متاح لمنشئ العرض والإدارة' : 'Authorized (Offer Creator & Admin)' }}
                             </span>
                         </div>
                     </div>
@@ -509,7 +509,7 @@
                 </h4>
 
                 <p style="font-size: 0.86rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.25rem;">
-                    {{ app()->getLocale() === 'ar' ? 'أرقام وهوية مالك العقار ووثائق الصك مخصصة حصرياً لفريق خدمة العملاء والإدارة العامة لإجراء المعاينات الرسمية وإبرام عقود البيع والإيجار.' : 'Property owner contact details and legal deeds are restricted to Customer Service and Administration for formal negotiations and viewings.' }}
+                    {{ app()->getLocale() === 'ar' ? 'أرقام وهوية مالك العقار ووثائق الصك مخصصة ومتاحة حصرياً للمستخدم الذي أضاف هذا العرض ولإدارة النظام فقط.' : 'Property owner contact details and legal deeds are confidential and restricted strictly to the user who created this offer and system administration.' }}
                 </p>
 
                 <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem; margin-bottom: 1.25rem; font-size: 0.85rem; text-align: {{ app()->getLocale() === 'ar' ? 'right' : 'left' }};">

@@ -406,16 +406,16 @@
                 </div>
             </div>
 
-            <!-- OWNER INFORMATION SECTION (GATED BY PERMISSION) -->
-            @if(auth()->user()->canViewOwnerContact())
+            <!-- OWNER INFORMATION SECTION (GATED: ONLY CREATOR & ADMIN) -->
+            @if($offer->canViewOwnerInfo())
                 <div style="background: var(--primary-50); border: 1.5px solid rgba(200, 155, 83, 0.4); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
                         <h5 style="font-size: 1rem; color: var(--primary-900); font-weight: 800; display: flex; align-items: center; gap: 0.5rem; margin: 0;">
                             <i class="fa-solid fa-user-lock text-gold"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'بيانات مالك العقار (سرية ومتاحة لخدمة العملاء والإدارة)' : 'Property Owner Contact (Authorized Access)' }}</span>
+                            <span>{{ app()->getLocale() === 'ar' ? 'بيانات مالك العقار (سرية ومتاحة لمنشئ العرض والإدارة)' : 'Property Owner Contact (Creator & Admin Access)' }}</span>
                         </h5>
                         <span class="badge-success" style="font-size: 0.72rem;">
-                            <i class="fa-solid fa-circle-check"></i> {{ app()->getLocale() === 'ar' ? 'صلاحية خدمة العملاء / الإدارة' : 'Authorized' }}
+                            <i class="fa-solid fa-circle-check"></i> {{ app()->getLocale() === 'ar' ? 'منشئ العرض / الإدارة' : 'Authorized' }}
                         </span>
                     </div>
 
@@ -468,7 +468,7 @@
                         {{ app()->getLocale() === 'ar' ? 'بيانات مالك العقار ووثيقة الصك محمية' : 'Owner Contact & Deed Protected' }}
                     </h5>
                     <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
-                        {{ app()->getLocale() === 'ar' ? 'هذه البيانات مخصصة حصرياً لفريق خدمة العملاء والإدارة العامة لإتمام المعاينات الرسمية والتعاقد، ولن تتأثر أو تُحذف عند حفظ تعديلاتك التسويقية.' : 'Owner contact is restricted to Customer Service & Admin and will remain intact upon saving.' }}
+                        {{ app()->getLocale() === 'ar' ? 'هذه البيانات مخصصة حصرياً للمستخدم الذي أضاف العرض والإدارة العامة، ولن تتأثر أو تُحذف عند حفظ تعديلاتك التسويقية.' : 'Owner contact is restricted strictly to the listing creator & Admin and will remain intact upon saving.' }}
                     </p>
                 </div>
             @endif
@@ -1108,10 +1108,10 @@
                 </div>
 
                 <div>
-                    @if(auth()->user()->canViewOwnerContact())
+                    @if($offer->canViewOwnerInfo())
                         <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem;">
                             <i class="fa-solid fa-lock text-gold"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'ملاحظات داخلية وسجل المالك السري (خدمة العملاء والإدارة)' : 'Internal Private Notes (CS & Admin Only)' }}</span>
+                            <span>{{ app()->getLocale() === 'ar' ? 'ملاحظات داخلية وسجل المالك السري (منشئ العرض والإدارة)' : 'Internal Private Notes (Creator & Admin Only)' }}</span>
                         </label>
                         <textarea name="internal_notes" rows="8" class="form-input" style="background: #fdfaf6;" placeholder="{{ app()->getLocale() === 'ar' ? 'بيانات المالك السرية، عمولة السعي الإضافية، أو توجيهات خاصة بالمعاينة...' : 'Confidential seller notes, broker commission split, inspection codes...' }}">{{ old('internal_notes', $offer->internal_notes) }}</textarea>
                     @else
@@ -1122,7 +1122,7 @@
                         <div style="background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 8px; padding: 1.5rem; text-align: center; height: calc(100% - 32px); display: flex; flex-direction: column; align-items: center; justify-content: center;">
                             <i class="fa-solid fa-shield-halved" style="color: #94a3b8; font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
                             <div style="font-weight: 700; color: #475569; font-size: 0.9rem;">{{ app()->getLocale() === 'ar' ? 'ملاحظات سرية محمية' : 'Confidential Notes Protected' }}</div>
-                            <span style="font-size: 0.78rem; color: #94a3b8; margin-top: 0.25rem;">{{ app()->getLocale() === 'ar' ? 'هذه الملاحظات مخصصة لفريق خدمة العملاء والإدارة ولا تظهر للمسوقين.' : 'These notes are restricted to Customer Service & Admin.' }}</span>
+                            <span style="font-size: 0.78rem; color: #94a3b8; margin-top: 0.25rem;">{{ app()->getLocale() === 'ar' ? 'هذه الملاحظات مخصصة لمنشئ العرض والإدارة ولا تظهر للمسوقين الآخرين.' : 'These notes are restricted to the listing creator & Admin.' }}</span>
                         </div>
                     @endif
                 </div>

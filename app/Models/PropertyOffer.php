@@ -124,6 +124,7 @@ class PropertyOffer extends Model
 
     /**
      * Check if a given or authenticated user has permission to view confidential owner contact info.
+     * Owner data is restricted ONLY to the user who added the offer (and system Admin).
      */
     public function canViewOwnerInfo(?User $user = null): bool
     {
@@ -132,7 +133,17 @@ class PropertyOffer extends Model
             return false;
         }
 
-        return $user->canViewOwnerContact();
+        // Only the user who added the offer can view the owner data
+        if ($this->created_by && (int)$this->created_by === (int)$user->id) {
+            return true;
+        }
+
+        // System Admin can also view for administration/supervision
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -144,7 +155,7 @@ class PropertyOffer extends Model
             return $this->owner_name ?: (app()->getLocale() === 'ar' ? 'غير مسجل' : 'Not recorded');
         }
 
-        return app()->getLocale() === 'ar' ? 'بيانات المالك سرية (خدمة العملاء والإدارة)' : 'Confidential (Customer Service & Admin)';
+        return app()->getLocale() === 'ar' ? 'بيانات المالك سرية (خاصة بمنشئ العرض)' : 'Confidential (Creator Only)';
     }
 
     /**
