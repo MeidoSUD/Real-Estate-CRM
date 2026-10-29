@@ -471,6 +471,18 @@
                 <span>{{ app()->getLocale() === 'ar' ? 'البيانات الأساسية وتصنيف العقار' : 'Basic Property Classification' }}</span>
             </h4>
 
+            <!-- Title AR & EN -->
+            <div class="form-grid-2" style="margin-bottom: 1.5rem;">
+                <div>
+                    <label class="form-label">{{ app()->getLocale() === 'ar' ? 'عنوان العرض (عربي)' : 'Offer Title (Arabic)' }}</label>
+                    <input type="text" name="title_ar" value="{{ old('title_ar') }}" class="form-input" placeholder="{{ app()->getLocale() === 'ar' ? 'مثال: فيلا فاخرة بتصميم مودرن في حي الشاطئ (اختياري - يتم التوليد تلقائياً إذا تُرك فارغاً)' : 'e.g. Luxury Modern Villa in Al-Shati (Optional - auto-generated if left blank)' }}">
+                </div>
+                <div>
+                    <label class="form-label">{{ app()->getLocale() === 'ar' ? 'عنوان العرض (إنجليزي)' : 'Offer Title (English)' }}</label>
+                    <input type="text" name="title" value="{{ old('title') }}" class="form-input" placeholder="{{ app()->getLocale() === 'ar' ? 'مثال: Luxury Modern Villa in Al-Shati District (اختياري)' : 'e.g. Luxury Modern Villa in Al-Shati District (Optional)' }}">
+                </div>
+            </div>
+
             <div class="form-grid-4" style="margin-bottom: 1.5rem;">
                 <div>
                     <label class="form-label">{{ app()->getLocale() === 'ar' ? 'قسم العقار *' : 'Property Category *' }}</label>

@@ -157,8 +157,12 @@ class OfferController extends Controller
         ]);
 
         // Auto-generate title if missing
-        $titleAr = $validated['title_ar'] ?: ($validated['property_type'] . ' فاخرة في ' . $validated['district']);
-        $titleEn = $validated['title'] ?: ($validated['property_type'] . ' in ' . $validated['district']);
+        $titleAr = !empty($validated['title_ar'])
+            ? $validated['title_ar']
+            : (($validated['property_type'] ?? 'عقار') . ' فاخرة في ' . ($validated['district'] ?? ''));
+        $titleEn = !empty($validated['title'])
+            ? $validated['title']
+            : (($validated['property_type'] ?? 'Property') . ' in ' . ($validated['district'] ?? ''));
 
         // Handle Deed Attachment
         $deedImagePath = null;
@@ -202,7 +206,7 @@ class OfferController extends Controller
             'city' => $validated['city'],
             'region' => $validated['region'] ?? 'منطقة مكة المكرمة',
             'district' => $validated['district'],
-            'address' => $validated['street_name'] ? ($validated['street_name'] . '، ' . $validated['district']) : $validated['district'],
+            'address' => !empty($validated['street_name']) ? ($validated['street_name'] . '، ' . $validated['district']) : $validated['district'],
             'street_name' => $validated['street_name'] ?? null,
             'postal_code' => $validated['postal_code'] ?? null,
             'building_number' => $validated['building_number'] ?? null,
@@ -348,8 +352,8 @@ class OfferController extends Controller
         ]);
 
         $data = [
-            'title' => $validated['title'] ?: $offer->title,
-            'title_ar' => $validated['title_ar'] ?: $offer->title_ar,
+            'title' => !empty($validated['title']) ? $validated['title'] : $offer->title,
+            'title_ar' => !empty($validated['title_ar']) ? $validated['title_ar'] : $offer->title_ar,
             'property_type' => $validated['property_type'],
             'property_category' => $validated['property_category'] ?? $offer->property_category,
             'deed_property_type' => $validated['deed_property_type'] ?? $offer->deed_property_type,
@@ -359,6 +363,7 @@ class OfferController extends Controller
             'city' => $validated['city'],
             'region' => $validated['region'] ?? $offer->region,
             'district' => $validated['district'],
+            'address' => !empty($validated['street_name']) ? ($validated['street_name'] . '، ' . $validated['district']) : ($offer->address ?? $validated['district']),
             'street_name' => $validated['street_name'] ?? $offer->street_name,
             'postal_code' => $validated['postal_code'] ?? $offer->postal_code,
             'building_number' => $validated['building_number'] ?? $offer->building_number,
