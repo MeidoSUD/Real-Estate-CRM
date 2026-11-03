@@ -147,6 +147,56 @@ class PropertyOffer extends Model
     }
 
     /**
+     * Check if a given or authenticated user can edit this offer.
+     * Only the user who created the offer (and system Admin) can edit it.
+     */
+    public function canEdit(?User $user = null): bool
+    {
+        $user = $user ?? auth()->user();
+        if (!$user) {
+            return false;
+        }
+
+        // System Admin can edit any offer
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        // Must have the permission to edit offers
+        if (!$user->hasPermission('offers.edit')) {
+            return false;
+        }
+
+        // Only the user who added the offer can edit it
+        return $this->created_by && (int)$this->created_by === (int)$user->id;
+    }
+
+    /**
+     * Check if a given or authenticated user can delete this offer.
+     * Only system Admin or the creator (with offers.delete permission) can delete it.
+     */
+    public function canDelete(?User $user = null): bool
+    {
+        $user = $user ?? auth()->user();
+        if (!$user) {
+            return false;
+        }
+
+        // System Admin can delete any offer
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        // Must have the permission to delete offers
+        if (!$user->hasPermission('offers.delete')) {
+            return false;
+        }
+
+        // Only the user who added the offer can delete it
+        return $this->created_by && (int)$this->created_by === (int)$user->id;
+    }
+
+    /**
      * Return masked owner name if user does not have permission.
      */
     public function getMaskedOwnerNameAttribute(): string

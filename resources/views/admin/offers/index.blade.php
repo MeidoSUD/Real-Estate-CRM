@@ -228,13 +228,13 @@
                                 <i class="fa-solid fa-globe"></i>
                             </a>
 
-                            @if(auth()->user()->hasPermission('offers.edit') || auth()->user()->isAdmin())
+                            @if($offer->canEdit())
                                 <a href="{{ route('admin.offers.edit', $offer->id) }}" class="btn-outline-luxury btn-sm" title="{{ app()->getLocale() === 'ar' ? 'تعديل بيانات العرض' : 'Edit Offer' }}">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </a>
                             @endif
 
-                            @if(auth()->user()->hasPermission('offers.delete') || auth()->user()->isAdmin())
+                            @if($offer->canDelete())
                                 <form action="{{ route('admin.offers.destroy', $offer->id) }}" method="POST" onsubmit="return confirm('{{ app()->getLocale() === 'ar' ? 'هل أنت متأكد من حذف هذا العرض العقاري نهائياً؟' : 'Delete this property offer?' }}');">
                                     @csrf
                                     @method('DELETE')

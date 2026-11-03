@@ -131,7 +131,7 @@
             <span>{{ app()->getLocale() === 'ar' ? 'الموقع العام' : 'Public Page' }}</span>
         </a>
 
-        @if(auth()->user()->hasPermission('offers.edit') || auth()->user()->isAdmin())
+        @if($offer->canEdit())
             <a href="{{ route('admin.offers.edit', $offer->id) }}" class="btn-luxury">
                 <i class="fa-solid fa-pen-to-square"></i>
                 <span>{{ app()->getLocale() === 'ar' ? 'تعديل العرض' : 'Edit Offer' }}</span>

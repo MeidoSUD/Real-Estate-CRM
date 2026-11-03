@@ -272,6 +272,10 @@ class OfferController extends Controller
      */
     public function edit(PropertyOffer $offer): View
     {
+        if (!$offer->canEdit()) {
+            abort(403, app()->getLocale() === 'ar' ? 'غير مصرح لك بتعديل هذا العرض العقاري. يمكنك فقط تعديل العروض التي أضفتها.' : 'Unauthorized action. You can only edit offers you created.');
+        }
+
         $dropdowns = $this->loadDropdownOptions();
         $dropdowns['offer'] = $offer;
         return view('admin.offers.edit', $dropdowns);
@@ -282,6 +286,10 @@ class OfferController extends Controller
      */
     public function update(Request $request, PropertyOffer $offer): RedirectResponse
     {
+        if (!$offer->canEdit()) {
+            abort(403, app()->getLocale() === 'ar' ? 'غير مصرح لك بتعديل هذا العرض العقاري. يمكنك فقط تعديل العروض التي أضفتها.' : 'Unauthorized action. You can only edit offers you created.');
+        }
+
         $validated = $request->validate([
             'title' => ['nullable', 'string', 'max:255'],
             'title_ar' => ['nullable', 'string', 'max:255'],
@@ -454,6 +462,10 @@ class OfferController extends Controller
      */
     public function destroy(PropertyOffer $offer): RedirectResponse
     {
+        if (!$offer->canDelete()) {
+            abort(403, app()->getLocale() === 'ar' ? 'غير مصرح لك بحذف هذا العرض العقاري.' : 'Unauthorized action. You cannot delete this offer.');
+        }
+
         if ($offer->main_image && !str_starts_with($offer->main_image, 'images/') && Storage::disk('public')->exists($offer->main_image)) {
             Storage::disk('public')->delete($offer->main_image);
         }
