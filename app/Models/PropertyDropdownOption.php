@@ -14,6 +14,7 @@ class PropertyDropdownOption extends Model
         'name_ar',
         'name_en',
         'value',
+        'parent_value',
         'order',
         'is_active',
     ];
@@ -105,6 +106,11 @@ class PropertyDropdownOption extends Model
                 'name_en' => 'Position in Unit',
                 'icon' => 'compass',
             ],
+            'city' => [
+                'name_ar' => 'المدن والمحافظات',
+                'name_en' => 'Cities & Governorates',
+                'icon' => 'city',
+            ],
             'district' => [
                 'name_ar' => 'الأحياء والمناطق',
                 'name_en' => 'Districts & Locations',
@@ -116,5 +122,13 @@ class PropertyDropdownOption extends Model
                 'icon' => 'faucet-drip',
             ],
         ];
+    }
+
+    /**
+     * Scope for filtering by parent (e.g. city for districts).
+     */
+    public function scopeForParent($query, string $parentValue)
+    {
+        return $query->where('parent_value', $parentValue);
     }
 }

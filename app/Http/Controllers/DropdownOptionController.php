@@ -20,17 +20,24 @@ class DropdownOptionController extends Controller
             $selectedType = array_key_first($typesCatalog);
         }
 
-        $options = PropertyDropdownOption::where('type', $selectedType)
-            ->orderBy('order')
+        $optionsQuery = PropertyDropdownOption::where('type', $selectedType);
+
+        if ($selectedType === 'district' && $request->filled('city_filter')) {
+            $optionsQuery->where('parent_value', $request->query('city_filter'));
+        }
+
+        $options = $optionsQuery->orderBy('order')
             ->orderBy('id')
             ->get();
+
+        $availableCities = PropertyDropdownOption::where('type', 'city')->active()->orderBy('order')->get();
 
         $countsByType = [];
         foreach ($typesCatalog as $key => $meta) {
             $countsByType[$key] = PropertyDropdownOption::where('type', $key)->count();
         }
 
-        return view('admin.dropdown_options.index', compact('typesCatalog', 'selectedType', 'options', 'countsByType'));
+        return view('admin.dropdown_options.index', compact('typesCatalog', 'selectedType', 'options', 'countsByType', 'availableCities'));
     }
 
     /**
@@ -43,6 +50,7 @@ class DropdownOptionController extends Controller
             'name_ar' => 'required|string|max:255',
             'name_en' => 'required|string|max:255',
             'value' => 'nullable|string|max:255',
+            'parent_value' => 'nullable|string|max:255',
             'order' => 'nullable|integer',
         ]);
 
@@ -68,6 +76,7 @@ class DropdownOptionController extends Controller
             'name_ar' => 'required|string|max:255',
             'name_en' => 'required|string|max:255',
             'value' => 'nullable|string|max:255',
+            'parent_value' => 'nullable|string|max:255',
             'order' => 'nullable|integer',
         ]);
 

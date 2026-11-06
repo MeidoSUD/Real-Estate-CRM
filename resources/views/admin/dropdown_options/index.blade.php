@@ -32,7 +32,7 @@
     <a href="{{ route('admin.dropdown-options.index') }}" style="text-decoration: none;">
         <div style="padding: 0.65rem 1.25rem; border-radius: 10px; font-size: 0.9rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.5rem; background: linear-gradient(135deg, var(--accent-bronze), var(--accent-gold)); color: #fff; box-shadow: 0 4px 12px rgba(163, 105, 57, 0.25);">
             <i class="fa-solid fa-list-ul"></i>
-            <span>{{ app()->getLocale() === 'ar' ? 'خيارات القوائم المنسدلة للعروض (10 أقسام)' : 'Offer Dropdown Options (10 Catalogs)' }}</span>
+            <span>{{ app()->getLocale() === 'ar' ? 'خيارات القوائم المنسدلة للعروض (11 قسماً)' : 'Offer Dropdown Options (11 Catalogs)' }}</span>
         </div>
     </a>
 </div>
@@ -59,7 +59,7 @@
 
 <!-- CURRENT CATEGORY OVERVIEW & TABLE -->
 <div class="luxury-card" style="padding: 1.75rem;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-light); padding-bottom: 1rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-light); padding-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
         <div>
             <h4 style="font-size: 1.2rem; color: var(--primary-900); font-weight: 800; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fa-solid fa-{{ $typesCatalog[$selectedType]['icon'] }} text-gold"></i>
@@ -68,9 +68,25 @@
             </h4>
         </div>
 
-        <span class="badge-gold">
-            {{ count($options) }} {{ app()->getLocale() === 'ar' ? 'خيارات متاحة' : 'options found' }}
-        </span>
+        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+            @if($selectedType === 'district' && isset($availableCities))
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <label style="font-size: 0.85rem; font-weight: 700; color: var(--primary-900);">{{ app()->getLocale() === 'ar' ? 'تصفية بالمدينة:' : 'Filter by City:' }}</label>
+                    <select onchange="window.location.href = '{{ route('admin.dropdown-options.index', ['type' => 'district']) }}' + (this.value ? '&city_filter=' + this.value : '')" class="form-select" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; border-radius: 8px;">
+                        <option value="">{{ app()->getLocale() === 'ar' ? 'كافة المدن' : 'All Cities' }}</option>
+                        @foreach($availableCities as $ac)
+                            <option value="{{ $ac->value }}" {{ request('city_filter') === $ac->value ? 'selected' : '' }}>
+                                {{ $ac->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            @endif
+
+            <span class="badge-gold">
+                {{ count($options) }} {{ app()->getLocale() === 'ar' ? 'خيارات متاحة' : 'options found' }}
+            </span>
+        </div>
     </div>
 
     <div class="luxury-table-container">
@@ -80,6 +96,9 @@
                     <th style="width: 70px;">{{ app()->getLocale() === 'ar' ? 'الترتيب' : 'Order' }}</th>
                     <th>{{ app()->getLocale() === 'ar' ? 'الاسم بالعربية' : 'Arabic Name' }}</th>
                     <th>{{ app()->getLocale() === 'ar' ? 'الاسم بالإنجليزية' : 'English Name' }}</th>
+                    @if($selectedType === 'district')
+                        <th>{{ app()->getLocale() === 'ar' ? 'المدينة التابعة' : 'Parent City' }}</th>
+                    @endif
                     <th>{{ app()->getLocale() === 'ar' ? 'المعرف (Code / Value)' : 'Code / Value' }}</th>
                     <th>{{ app()->getLocale() === 'ar' ? 'الحالة' : 'Status' }}</th>
                     <th style="width: 180px;">{{ app()->getLocale() === 'ar' ? 'الإجراءات' : 'Actions' }}</th>
@@ -97,6 +116,13 @@
                         <td>
                             <span style="color: var(--text-main); font-size: 0.92rem; font-weight: 600;">{{ $opt->name_en }}</span>
                         </td>
+                        @if($selectedType === 'district')
+                            <td>
+                                <span class="badge-gold" style="font-size: 0.75rem;">
+                                    {{ $opt->parent_value ?: (app()->getLocale() === 'ar' ? 'عام' : 'General') }}
+                                </span>
+                            </td>
+                        @endif
                         <td>
                             <code style="font-size: 0.8rem; background: var(--primary-50); padding: 0.2rem 0.5rem; border-radius: 6px; color: var(--accent-bronze);">
                                 {{ $opt->value ?: '-' }}
@@ -120,7 +146,7 @@
                                 </form>
 
                                 <!-- EDIT -->
-                                <button type="button" class="btn-outline-luxury btn-sm" onclick="openEditModal({{ $opt->id }}, '{{ addslashes($opt->name_ar) }}', '{{ addslashes($opt->name_en) }}', '{{ addslashes($opt->value) }}', {{ $opt->order }})" title="تعديل">
+                                <button type="button" class="btn-outline-luxury btn-sm" onclick="openEditModal({{ $opt->id }}, '{{ addslashes($opt->name_ar) }}', '{{ addslashes($opt->name_en) }}', '{{ addslashes($opt->value) }}', '{{ addslashes($opt->parent_value ?? '') }}', {{ $opt->order }})" title="تعديل">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </button>
 
@@ -137,7 +163,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                        <td colspan="{{ $selectedType === 'district' ? '7' : '6' }}" style="text-align: center; padding: 3rem; color: var(--text-muted);">
                             {{ app()->getLocale() === 'ar' ? 'لا توجد خيارات مسجلة لهذا القسم حالياً.' : 'No options found in this category yet.' }}
                         </td>
                     </tr>
@@ -174,6 +200,20 @@
                 <label class="form-label">{{ app()->getLocale() === 'ar' ? 'الاسم باللغة الإنجليزية *' : 'Name in English *' }}</label>
                 <input type="text" name="name_en" required class="form-input" placeholder="e.g. Smart Modern Villa">
             </div>
+
+            @if($selectedType === 'district' && isset($availableCities))
+                <div style="margin-bottom: 1.25rem;">
+                    <label class="form-label">{{ app()->getLocale() === 'ar' ? 'المدينة التابعة *' : 'Parent City *' }}</label>
+                    <select name="parent_value" required class="form-select">
+                        <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر المدينة --' : '-- Select City --' }}</option>
+                        @foreach($availableCities as $ac)
+                            <option value="{{ $ac->value }}" {{ request('city_filter') === $ac->value ? 'selected' : '' }}>
+                                {{ $ac->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            @endif
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
                 <div>
@@ -226,6 +266,20 @@
                 <input type="text" name="name_en" id="edit_name_en" required class="form-input">
             </div>
 
+            @if($selectedType === 'district' && isset($availableCities))
+                <div style="margin-bottom: 1.25rem;">
+                    <label class="form-label">{{ app()->getLocale() === 'ar' ? 'المدينة التابعة *' : 'Parent City *' }}</label>
+                    <select name="parent_value" required class="form-select">
+                        <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر المدينة --' : '-- Select City --' }}</option>
+                        @foreach($availableCities as $ac)
+                            <option value="{{ $ac->value }}" {{ request('city_filter') === $ac->value ? 'selected' : '' }}>
+                                {{ $ac->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            @endif
+
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
                 <div>
                     <label class="form-label">{{ app()->getLocale() === 'ar' ? 'المعرف (Code)' : 'Value / Code' }}</label>
@@ -256,10 +310,14 @@ function closeAddModal() {
     document.getElementById('addModal').style.display = 'none';
 }
 
-function openEditModal(id, nameAr, nameEn, value, order) {
+function openEditModal(id, nameAr, nameEn, value, parentValue, order) {
     document.getElementById('edit_name_ar').value = nameAr;
     document.getElementById('edit_name_en').value = nameEn;
     document.getElementById('edit_value').value = value;
+    const parentSelect = document.getElementById('edit_parent_value');
+    if (parentSelect) {
+        parentSelect.value = parentValue || '';
+    }
     document.getElementById('edit_order').value = order;
     document.getElementById('editForm').action = '{{ url('/admin/dropdown-options') }}/' + id;
     document.getElementById('editModal').style.display = 'flex';

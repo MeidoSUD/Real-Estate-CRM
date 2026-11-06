@@ -259,15 +259,18 @@
         </div>
     </div>
 
-    <!-- QUICK REGIONS SELECTOR BAR - WRAP IN SIZE OF SCREEN -->
+    <!-- QUICK KSA CITIES & DESTINATIONS SELECTOR BAR -->
     <div class="regions-bar">
         <span style="font-size: 0.85rem; font-weight: 800; color: var(--accent-bronze); white-space: nowrap;">
-            <i class="fa-solid fa-location-crosshairs"></i>
-            {{ app()->getLocale() === 'ar' ? 'المناطق التابعة للفرع (جدة):' : 'Branch Zones (Jeddah):' }}
+            <i class="fa-solid fa-map-location-dot"></i>
+            {{ app()->getLocale() === 'ar' ? 'أبرز وجهات ومدن المملكة:' : 'Key KSA Cities & Places:' }}
         </span>
-        @foreach($districts as $d)
-            <div class="region-chip" onclick="quickSelectDistrict('{{ $d->name_en }}', '{{ $d->name_ar }}', this)">
-                {{ $d->name }}
+        @foreach($cities as $c)
+            <div class="region-chip {{ (old('city') == $c->value || (!old('city') && $c->value === 'Riyadh')) ? 'active' : '' }}" 
+                 data-city-val="{{ $c->value }}"
+                 onclick="quickSelectCity('{{ $c->value }}', this)">
+                <i class="fa-solid fa-city" style="font-size: 0.72rem; margin-inline-end: 4px;"></i>
+                {{ $c->name }}
             </div>
         @endforeach
     </div>
@@ -830,27 +833,35 @@
 
             <div class="form-grid-4" style="margin-bottom: 1.25rem;">
                 <div>
-                    <label class="form-label">{{ app()->getLocale() === 'ar' ? 'المنطقة *' : 'Region *' }}</label>
-                    <input type="text" name="region" value="{{ app()->getLocale() === 'ar' ? 'منطقة مكة المكرمة' : 'Makkah Region' }}" required class="form-input">
+                    <label class="form-label">{{ app()->getLocale() === 'ar' ? 'المنطقة الإدارية *' : 'Administrative Region *' }}</label>
+                    <input type="text" name="region" id="offerRegionInput" value="{{ old('region', app()->getLocale() === 'ar' ? 'منطقة الرياض' : 'Riyadh Region') }}" required class="form-input">
                 </div>
 
                 <div>
-                    <label class="form-label">{{ app()->getLocale() === 'ar' ? 'المدينة *' : 'City *' }}</label>
-                    <input type="text" name="city" value="{{ app()->getLocale() === 'ar' ? 'جدة' : 'Jeddah' }}" required class="form-input">
+                    <label class="form-label">{{ app()->getLocale() === 'ar' ? 'المدينة / المحافظة *' : 'City / Governorate *' }}</label>
+                    <select name="city" id="offerCitySelect" required class="form-select" onchange="onCityChanged(this.value)">
+                        @foreach($cities as $c)
+                            <option value="{{ $c->value }}" data-name-ar="{{ $c->name_ar }}" data-name-en="{{ $c->name_en }}" {{ (old('city') == $c->value || old('city') == $c->name_ar || (!old('city') && $c->value === 'Riyadh')) ? 'selected' : '' }}>
+                                {{ $c->name }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
 
                 <div>
-                    <label class="form-label">{{ app()->getLocale() === 'ar' ? 'الحي بجدة *' : 'District *' }}</label>
+                    <label class="form-label">{{ app()->getLocale() === 'ar' ? 'الحي / المنطقة *' : 'District / Neighborhood *' }}</label>
                     <select name="district" id="offerDistrictSelect" required class="form-select">
                         @foreach($districts as $d)
-                            <option value="{{ $d->value }}">{{ $d->name }}</option>
+                            <option value="{{ $d->value }}" data-city="{{ $d->parent_value }}">
+                                {{ $d->name }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
 
                 <div>
                     <label class="form-label">{{ app()->getLocale() === 'ar' ? 'اسم الشارع' : 'Street Name' }}</label>
-                    <input type="text" name="street_name" id="offerStreetInput" class="form-input" placeholder="e.g. شارع الأمير سلطان">
+                    <input type="text" name="street_name" id="offerStreetInput" class="form-input" placeholder="e.g. طريق الملك فهد">
                 </div>
             </div>
 
@@ -862,7 +873,7 @@
 
                 <div>
                     <label class="form-label">{{ app()->getLocale() === 'ar' ? 'الرمز البريدي' : 'Postal Code' }}</label>
-                    <input type="text" name="postal_code" class="form-input" placeholder="e.g. 23512">
+                    <input type="text" name="postal_code" class="form-input" placeholder="e.g. 13315">
                 </div>
 
                 <div>
@@ -879,12 +890,12 @@
             <div class="form-grid-2">
                 <div>
                     <label class="form-label">{{ app()->getLocale() === 'ar' ? 'خط العرض (Latitude)' : 'Latitude' }}</label>
-                    <input type="text" name="latitude" id="offerLatInput" value="21.543333" class="form-input">
+                    <input type="text" name="latitude" id="offerLatInput" value="24.713600" class="form-input">
                 </div>
 
                 <div>
                     <label class="form-label">{{ app()->getLocale() === 'ar' ? 'خط الطول (Longitude)' : 'Longitude' }}</label>
-                    <input type="text" name="longitude" id="offerLngInput" value="39.172778" class="form-input">
+                    <input type="text" name="longitude" id="offerLngInput" value="46.675300" class="form-input">
                 </div>
             </div>
         </div>
@@ -989,13 +1000,100 @@ function resetForm() {
     }
 }
 
+const ksaCityMeta = {
+    'Riyadh': { regionAr: 'منطقة الرياض', regionEn: 'Riyadh Region', lat: 24.713600, lng: 46.675300 },
+    'Jeddah': { regionAr: 'منطقة مكة المكرمة', regionEn: 'Makkah Region', lat: 21.543333, lng: 39.172778 },
+    'Makkah': { regionAr: 'منطقة مكة المكرمة', regionEn: 'Makkah Region', lat: 21.389100, lng: 39.857900 },
+    'Madinah': { regionAr: 'منطقة المدينة المنورة', regionEn: 'Madinah Region', lat: 24.524700, lng: 39.569200 },
+    'Dammam': { regionAr: 'المنطقة الشرقية', regionEn: 'Eastern Province', lat: 26.420700, lng: 50.088800 },
+    'Khobar': { regionAr: 'المنطقة الشرقية', regionEn: 'Eastern Province', lat: 26.217200, lng: 50.197100 },
+    'Dhahran': { regionAr: 'المنطقة الشرقية', regionEn: 'Eastern Province', lat: 26.236100, lng: 50.039300 },
+    'Al-Ahsa': { regionAr: 'المنطقة الشرقية', regionEn: 'Eastern Province', lat: 25.383300, lng: 49.583300 },
+    'Jubail': { regionAr: 'المنطقة الشرقية', regionEn: 'Eastern Province', lat: 27.004600, lng: 49.660600 },
+    'Taif': { regionAr: 'منطقة مكة المكرمة', regionEn: 'Makkah Region', lat: 21.285400, lng: 40.422200 },
+    'Yanbu': { regionAr: 'منطقة المدينة المنورة', regionEn: 'Madinah Region', lat: 24.089500, lng: 38.063700 },
+    'Diriyah': { regionAr: 'منطقة الرياض', regionEn: 'Riyadh Region', lat: 24.733900, lng: 46.575500 },
+    'Al-Kharj': { regionAr: 'منطقة الرياض', regionEn: 'Riyadh Region', lat: 24.155400, lng: 47.334600 },
+    'Buraidah': { regionAr: 'منطقة القصيم', regionEn: 'Al-Qassim Region', lat: 26.359200, lng: 43.981800 },
+    'Unaizah': { regionAr: 'منطقة القصيم', regionEn: 'Al-Qassim Region', lat: 26.084400, lng: 43.993600 },
+    'Abha': { regionAr: 'منطقة عسير', regionEn: 'Asir Region', lat: 18.216400, lng: 42.505300 },
+    'Khamis-Mushait': { regionAr: 'منطقة عسير', regionEn: 'Asir Region', lat: 18.306400, lng: 42.729200 },
+    'Tabuk': { regionAr: 'منطقة تبوك', regionEn: 'Tabuk Region', lat: 28.383500, lng: 36.566200 },
+    'NEOM': { regionAr: 'منطقة تبوك', regionEn: 'Tabuk Region', lat: 28.000000, lng: 35.300000 },
+    'Hail': { regionAr: 'منطقة حائل', regionEn: 'Hail Region', lat: 27.521900, lng: 41.695700 },
+    'Jazan': { regionAr: 'منطقة جازان', regionEn: 'Jazan Region', lat: 16.889200, lng: 42.551100 },
+    'Najran': { regionAr: 'منطقة نجران', regionEn: 'Najran Region', lat: 17.492400, lng: 44.127700 },
+    'Sakaka': { regionAr: 'منطقة الجوف', regionEn: 'Al-Jouf Region', lat: 29.969700, lng: 40.206400 },
+    'Arar': { regionAr: 'منطقة الحدود الشمالية', regionEn: 'Northern Borders Region', lat: 30.975300, lng: 41.038100 },
+    'Al-Baha': { regionAr: 'منطقة الباحة', regionEn: 'Al-Baha Region', lat: 20.012900, lng: 41.467700 }
+};
+
+function onCityChanged(cityVal) {
+    const isAr = "{{ app()->getLocale() }}" === 'ar';
+    const regionInput = document.getElementById('offerRegionInput');
+    const districtSelect = document.getElementById('offerDistrictSelect');
+    const meta = ksaCityMeta[cityVal];
+
+    if (meta && regionInput) {
+        regionInput.value = isAr ? meta.regionAr : meta.regionEn;
+    }
+
+    if (districtSelect) {
+        let firstMatch = null;
+        const options = districtSelect.querySelectorAll('option');
+        options.forEach(opt => {
+            const optCity = opt.getAttribute('data-city');
+            if (!optCity || optCity === cityVal) {
+                opt.style.display = '';
+                if (!firstMatch) firstMatch = opt;
+            } else {
+                opt.style.display = 'none';
+            }
+        });
+        if (firstMatch && (!districtSelect.value || districtSelect.selectedOptions[0]?.style.display === 'none')) {
+            districtSelect.value = firstMatch.value;
+        }
+    }
+
+    if (meta) {
+        const latInput = document.getElementById('offerLatInput');
+        const lngInput = document.getElementById('offerLngInput');
+        if (latInput && lngInput) {
+            latInput.value = meta.lat.toFixed(6);
+            lngInput.value = meta.lng.toFixed(6);
+            document.getElementById('offerMapLink').value = 'https://www.google.com/maps?q=' + meta.lat.toFixed(6) + ',' + meta.lng.toFixed(6);
+        }
+
+        if (mapInstance && markerInstance) {
+            mapInstance.setView([meta.lat, meta.lng], 13);
+            markerInstance.setLatLng([meta.lat, meta.lng]);
+        }
+    }
+
+    document.querySelectorAll('.region-chip').forEach(c => {
+        if (c.getAttribute('data-city-val') === cityVal) {
+            c.classList.add('active');
+        } else {
+            c.classList.remove('active');
+        }
+    });
+}
+
+function quickSelectCity(cityVal, el) {
+    const select = document.getElementById('offerCitySelect');
+    if (select) {
+        select.value = cityVal;
+        onCityChanged(cityVal);
+    }
+}
+
 function quickSelectDistrict(valEn, valAr, el) {
     const select = document.getElementById('offerDistrictSelect');
     if (select) {
         select.value = valEn;
     }
     document.querySelectorAll('.region-chip').forEach(c => c.classList.remove('active'));
-    el.classList.add('active');
+    if (el) el.classList.add('active');
 }
 
 function previewSlotImage(input, slotKey) {
@@ -1077,5 +1175,12 @@ function locateUserGPS() {
         });
     }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const citySelect = document.getElementById('offerCitySelect');
+    if (citySelect) {
+        onCityChanged(citySelect.value);
+    }
+});
 </script>
 @endsection

@@ -53,10 +53,21 @@
             </div>
 
             <div>
+                <select name="city" class="form-select">
+                    <option value="">{{ app()->getLocale() === 'ar' ? 'كافة المدن' : 'All Cities' }}</option>
+                    @foreach($cities as $ct)
+                        <option value="{{ $ct->value }}" {{ request('city') === $ct->value || request('city') === $ct->name_ar || request('city') === $ct->name_en ? 'selected' : '' }}>
+                            {{ $ct->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div>
                 <select name="district" class="form-select">
                     <option value="">{{ app()->getLocale() === 'ar' ? 'كافة الأحياء' : 'All Districts' }}</option>
                     @foreach($districts as $dst)
-                        <option value="{{ $dst->name_en }}" {{ request('district') === $dst->name_en || request('district') === $dst->name_ar ? 'selected' : '' }}>
+                        <option value="{{ $dst->name_en }}" {{ request('district') === $dst->name_en || request('district') === $dst->name_ar || request('district') === $dst->value ? 'selected' : '' }}>
                             {{ $dst->name }}
                         </option>
                     @endforeach
@@ -88,7 +99,7 @@
                     <span>{{ app()->getLocale() === 'ar' ? 'تطبيق التصفية' : 'Apply Filters' }}</span>
                 </button>
 
-                @if(request()->hasAny(['search', 'status', 'district', 'property_type', 'property_category', 'hide_sold']))
+                @if(request()->hasAny(['search', 'status', 'city', 'district', 'property_type', 'property_category', 'hide_sold']))
                     <a href="{{ route('admin.offers.index') }}" class="btn-outline-luxury" style="padding: 0.65rem 1rem;" title="{{ app()->getLocale() === 'ar' ? 'إلغاء التصفية' : 'Clear Filters' }}">
                         <i class="fa-solid fa-rotate-left"></i>
                         <span>{{ app()->getLocale() === 'ar' ? 'إعادة تعيين' : 'Reset' }}</span>
@@ -107,7 +118,7 @@
                 <th>{{ app()->getLocale() === 'ar' ? 'العقار والرمز' : 'Property & Code' }}</th>
                 <th>{{ app()->getLocale() === 'ar' ? 'التصنيف / النوع' : 'Category / Type' }}</th>
                 <th>{{ app()->getLocale() === 'ar' ? 'الصك / ترخيص الإعلان' : 'Deed / REGA License' }}</th>
-                <th>{{ app()->getLocale() === 'ar' ? 'الحي (جدة)' : 'District' }}</th>
+                <th>{{ app()->getLocale() === 'ar' ? 'المدينة والحي' : 'City & District' }}</th>
                 <th>{{ app()->getLocale() === 'ar' ? 'السعر المطلوب' : 'Price (SAR)' }}</th>
                 <th>{{ app()->getLocale() === 'ar' ? 'الحالة' : 'Status' }}</th>
                 <th>{{ app()->getLocale() === 'ar' ? 'المسوق المسؤول' : 'Listing Agent' }}</th>
@@ -165,6 +176,11 @@
                     <td>
                         <i class="fa-solid fa-location-dot text-gold" style="font-size: 0.8rem;"></i>
                         <span style="font-weight: 700;">{{ $offer->district }}</span>
+                        @if($offer->city)
+                            <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 2px;">
+                                {{ $offer->city }}
+                            </div>
+                        @endif
                     </td>
                     <td>
                         <div style="font-size: 1.15rem; font-weight: 900; color: var(--primary-900);">

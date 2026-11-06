@@ -36,6 +36,10 @@ class OfferController extends Controller
             $query->where('status', $request->input('status'));
         }
 
+        if ($request->filled('city')) {
+            $query->where('city', $request->input('city'));
+        }
+
         if ($request->filled('district')) {
             $query->where('district', $request->input('district'));
         }
@@ -67,10 +71,11 @@ class OfferController extends Controller
         $offers = $query->latest()->paginate(12)->withQueryString();
 
         $districts = PropertyDropdownOption::getOptions('district');
+        $cities = PropertyDropdownOption::getOptions('city');
         $propertyTypes = PropertyDropdownOption::getOptions('property_type');
         $propertyCategories = PropertyDropdownOption::getOptions('property_category');
 
-        return view('admin.offers.index', compact('offers', 'districts', 'propertyTypes', 'propertyCategories'));
+        return view('admin.offers.index', compact('offers', 'cities', 'districts', 'propertyTypes', 'propertyCategories'));
     }
 
     /**
@@ -490,6 +495,7 @@ class OfferController extends Controller
             'finishingTypes' => PropertyDropdownOption::getOptions('finishing_type'),
             'propertyUsages' => PropertyDropdownOption::getOptions('property_usage'),
             'unitPositions' => PropertyDropdownOption::getOptions('unit_position'),
+            'cities' => PropertyDropdownOption::getOptions('city'),
             'districts' => PropertyDropdownOption::getOptions('district'),
             'utilities' => PropertyDropdownOption::getOptions('utility'),
         ];
